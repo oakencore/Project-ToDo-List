@@ -11,9 +11,13 @@ export function divOrganiser() {
   const menuPannel = contentContainer.appendChild(menuPannelCreation());
   menuPannelStyling(menuPannel);
   menuPannelDivCreation(menuPannel);
-  menuPannelDivContainerStyling()
+  menuPannelDivCreationProjects(menuPannel);
+  menuPannelDivContainerStyling();
+  menuPannelDivCreationProjectsStyling();
   const inbox = contentContainer.appendChild(inboxCreation());
   inboxStyling(inbox);
+  const inboxContainer = inboxContainerCreation(inbox);
+  inboxContainerStyling(inboxContainer);
   const footer = mainDiv.appendChild(footerCreation());
   footerStyling(footer);
 }
@@ -62,6 +66,33 @@ function menuPannelDivCreation(menuPannel) {
 
   menuPannelDivContainer.append(inboxDiv, todayDiv, thisWeekDiv);
   menuPannel.appendChild(menuPannelDivContainer);
+}
+
+function menuPannelDivCreationProjects(menuPannel) {
+  const menuPannelDivContainerProjects = document.createElement("div");
+  menuPannelDivContainerProjects.setAttribute(
+    "id",
+    "menuPannelDivContainerProjects"
+  );
+
+  const projectsTitleTextDiv = createDivWithText(
+    "projectsTitle",
+    "projectsTitleTextDiv"
+  );
+
+  menuPannelDivContainerProjects.append(projectsTitleTextDiv);
+  menuPannel.appendChild(menuPannelDivContainerProjects);
+}
+
+function inboxContainerCreation(inbox) {
+  const inboxContainerDiv = createDivWithText("", "InboxContainerDiv");
+  const inboxContainerDivTitle = createDivWithText(
+    "Inbox",
+    "inboxContainerTitle"
+  );
+  inboxContainerDiv.append(inboxContainerDivTitle);
+  inbox.appendChild(inboxContainerDiv);
+  return inboxContainerDiv
 }
 
 function inboxCreation() {
@@ -122,25 +153,48 @@ function contentContainerStyling(contentContainer) {
 function menuPannelStyling(menuPannel) {
   menuPannel.style.flexGrow = 1;
   menuPannel.style.display = "flex";
+  menuPannel.style.flexDirection = "column";
+  menuPannel.style.justifyContent = "center";
   menuPannel.style.backgroundColor = "grey";
   menuPannel.style.width = "20%";
   menuPannel.style.height = "auto";
-}
-
-function inboxStyling(inbox) {
-  inbox.style.flexGrow = 1;
-  inbox.style.display = "flex";
-  inbox.style.backgroundColor = "blue";
-  inbox.style.width = "70%";
-  inbox.style.height = "auto";
 }
 
 function menuPannelDivContainerStyling() {
   const menuPannelContainer = document.getElementById("menuPannelDivContainer");
   menuPannelContainer.style.display = "flex";
   menuPannelContainer.style.flexDirection = "column";
-  menuPannelContainer.style.padding = "2px";
+  menuPannelContainer.style.justifyContent = "space-between";
   menuPannelContainer.style.backgroundColor = "orange";
+  menuPannelContainer.style.marginBottom = "10px";
+}
+
+function menuPannelDivCreationProjectsStyling() {
+  const menuPannelContainerProjects = document.getElementById(
+    "menuPannelDivContainerProjects"
+  );
+  menuPannelContainerProjects.style.display = "flex";
+  menuPannelContainerProjects.style.flexDirection = "column";
+  menuPannelContainerProjects.style.justifyContent = "space-between";
+  menuPannelContainerProjects.style.backgroundColor = "yellow";
+}
+
+function inboxStyling(inbox) {
+  inbox.style.flexGrow = 1;
+  inbox.style.display = "flex";
+  inbox.style.justifyContent = "center"
+  inbox.style.alignItems = "center"
+  inbox.style.backgroundColor = "blue";
+  inbox.style.width = "70%";
+  inbox.style.height = "auto";
+}
+
+function inboxContainerStyling(inboxContainer) {
+    inboxContainer.style.display = 'flex';
+    inboxContainer.style.backgroundColor = "green"
+    inboxContainer.style.width = "80%"
+    inboxContainer.style.height = "80%"
+    
 }
 
 function footerStyling(footer) {
@@ -148,5 +202,5 @@ function footerStyling(footer) {
   footer.style.flexDirection = "row";
   footer.style.backgroundColor = "orange";
   footer.style.width = "100%";
-  footer.style.height = "50px";
+  footer.style.height = "30px";
 }
