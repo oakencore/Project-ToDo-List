@@ -1,3 +1,6 @@
+import { NewTaskCreatorPrompt, ChangeDivVisibility } from "./clickActions.js";
+import { addClickListenerToDiv } from "./listeners.js";
+
 export function divOrganiser() {
   globalStyling();
   const mainDiv = document.body.appendChild(mainDivCreation());
@@ -14,10 +17,25 @@ export function divOrganiser() {
   menuPannelDivCreationProjects(menuPannel);
   menuPannelDivContainerStyling();
   menuPannelDivCreationProjectsStyling();
+
+  //Inbox
   const inbox = contentContainer.appendChild(inboxCreation());
   inboxStyling(inbox);
   const inboxContainer = inboxContainerCreation(inbox);
   inboxContainerStyling(inboxContainer);
+  const inboxItem = createDivWithText("Add Task", "task");
+  // Passing NewTaskCreatorPrompt as a reference not a prompt, so it will return the function itself not the value.
+  addClickListenerToDiv(inboxItem, NewTaskCreatorPrompt);
+  inboxContainer.appendChild(inboxItem);
+  inboxItemStyling(inboxItem);
+  // Task Creator
+  const taskCreatordiv = createDivWithText("", "taskCreatorDiv");
+  inbox.appendChild(taskCreatordiv);
+  taskCreatorDivStyling();
+  taskCreatorDivPopulate(taskCreatordiv);
+
+
+  // Footer
   const footer = mainDiv.appendChild(footerCreation());
   footerStyling(footer);
 }
@@ -39,8 +57,13 @@ function createDivWithText(text, divID) {
   if (divID) {
     newDiv.id = divID;
   }
-  const textNode = document.createTextNode(text);
+  // Check if text is not undefined and is of type string
+  // If not, convert it to a string or handle it as needed
+  const textContent = text !== undefined && text !== null ? String(text) : "";
+
+  const textNode = document.createTextNode(textContent);
   newDiv.appendChild(textNode);
+
   return newDiv;
 }
 
@@ -60,9 +83,9 @@ function menuPannelDivCreation(menuPannel) {
   const menuPannelDivContainer = document.createElement("div");
   menuPannelDivContainer.setAttribute("id", "menuPannelDivContainer");
 
-  const inboxDiv = createDivWithText("inboxDiv", "inboxDiv");
-  const todayDiv = createDivWithText("todayDiv", "todayDiv");
-  const thisWeekDiv = createDivWithText("thisWeekDiv", "thisWeekDiv");
+  const inboxDiv = createDivWithText("Inbox", "inboxDiv");
+  const todayDiv = createDivWithText("Today", "todayDiv");
+  const thisWeekDiv = createDivWithText("This Week", "thisWeekDiv");
 
   menuPannelDivContainer.append(inboxDiv, todayDiv, thisWeekDiv);
   menuPannel.appendChild(menuPannelDivContainer);
@@ -76,7 +99,7 @@ function menuPannelDivCreationProjects(menuPannel) {
   );
 
   const projectsTitleTextDiv = createDivWithText(
-    "projectsTitle",
+    "Add Project",
     "projectsTitleTextDiv"
   );
 
@@ -92,7 +115,7 @@ function inboxContainerCreation(inbox) {
   );
   inboxContainerDiv.append(inboxContainerDivTitle);
   inbox.appendChild(inboxContainerDiv);
-  return inboxContainerDiv
+  return inboxContainerDiv;
 }
 
 function inboxCreation() {
@@ -105,6 +128,62 @@ function footerCreation() {
   const footer = document.createElement("footer");
   footer.id = "footer";
   return footer;
+}
+
+function taskCreatorDivPopulate(taskCreatorDiv) {
+  // Create the form element
+  const form = document.createElement("form");
+  form.id = "taskCreationForm";
+
+  // Helper function to create input fields with labels
+  function createInputField(
+    labelText,
+    inputType,
+    inputName,
+    isRequired = false
+  ) {
+    const wrapper = document.createElement("div");
+
+    const label = document.createElement("label");
+    label.textContent = labelText;
+    label.htmlFor = inputName;
+    wrapper.appendChild(label);
+
+    const input = document.createElement("input");
+    input.type = inputType;
+    input.name = inputName;
+    input.id = inputName;
+    input.required = isRequired;
+    wrapper.appendChild(input);
+
+    return wrapper;
+  }
+
+  // Append fields to the form
+  form.appendChild(createInputField("Title:", "text", "title", true));
+  form.appendChild(createInputField("Due Date:", "date", "dueDate"));
+  form.appendChild(createInputField("Description:", "text", "description"));
+  form.appendChild(createInputField("Priority:", "text", "priority"));
+  form.appendChild(createInputField("Notes:", "text", "notes"));
+
+  // Create a submit button
+  const submitBtn = document.createElement("button");
+  submitBtn.type = "submit";
+  submitBtn.textContent = "Create Task";
+  form.appendChild(submitBtn);
+
+  // Handle form submission
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    // Handle the form data here
+    console.log("Form submitted");
+  });
+
+  if (taskCreatorDiv) {
+    taskCreatorDiv.appendChild(form);
+  } else {
+    console.error("taskCreatorDiv is not provided or is not a valid element");
+  }
 }
 
 // Styling
@@ -128,7 +207,6 @@ function headerStyling(header) {
   header.style.backgroundColor = "red";
   header.style.width = "70px%";
   header.style.height = "70px";
-  header.style.borderStyle = "dotted";
 }
 
 function headerTextStyling() {
@@ -158,6 +236,7 @@ function menuPannelStyling(menuPannel) {
   menuPannel.style.backgroundColor = "grey";
   menuPannel.style.width = "20%";
   menuPannel.style.height = "auto";
+  menuPannel.style.padding = "20px";
 }
 
 function menuPannelDivContainerStyling() {
@@ -166,7 +245,8 @@ function menuPannelDivContainerStyling() {
   menuPannelContainer.style.flexDirection = "column";
   menuPannelContainer.style.justifyContent = "space-between";
   menuPannelContainer.style.backgroundColor = "orange";
-  menuPannelContainer.style.marginBottom = "10px";
+  menuPannelContainer.style.marginBottom = "30px";
+  menuPannelContainer.style.gap = "15px";
 }
 
 function menuPannelDivCreationProjectsStyling() {
@@ -182,19 +262,45 @@ function menuPannelDivCreationProjectsStyling() {
 function inboxStyling(inbox) {
   inbox.style.flexGrow = 1;
   inbox.style.display = "flex";
-  inbox.style.justifyContent = "center"
-  inbox.style.alignItems = "center"
+  inbox.style.justifyContent = "center";
+  inbox.style.alignItems = "center";
   inbox.style.backgroundColor = "blue";
   inbox.style.width = "70%";
   inbox.style.height = "auto";
 }
 
 function inboxContainerStyling(inboxContainer) {
-    inboxContainer.style.display = 'flex';
-    inboxContainer.style.backgroundColor = "green"
-    inboxContainer.style.width = "80%"
-    inboxContainer.style.height = "80%"
-    
+  inboxContainer.style.display = "flex";
+  inboxContainer.style.flexDirection = "column";
+  inboxContainer.style.backgroundColor = "green";
+  inboxContainer.style.width = "80%";
+  inboxContainer.style.height = "80%";
+
+  // First CHild
+  const firstChild = inboxContainer.firstElementChild;
+  if (firstChild) {
+    firstChild.style.backgroundColor = "silver";
+    firstChild.style.padding = "10px";
+    firstChild.style.fontSize = "40px";
+  }
+}
+
+function inboxItemStyling(inboxItem) {
+  const styledInboxItem = inboxItem;
+  styledInboxItem.style.backgroundColor = "darkGrey";
+  styledInboxItem.style.padding = "10px";
+  return styledInboxItem;
+}
+
+export function taskCreatorDivStyling() {
+  const taskCreatorDiv = document.getElementById("taskCreatorDiv");
+  if (taskCreatorDiv) {
+    taskCreatorDiv.style.display = "none";
+    taskCreatorDiv.style.flexDirection = "column";
+    taskCreatorDiv.style.backgroundColor = "violet";
+    taskCreatorDiv.style.width = "80%";
+    taskCreatorDiv.style.height = "80%";
+  }
 }
 
 function footerStyling(footer) {
