@@ -1,7 +1,9 @@
-import { NewTaskCreatorPrompt, ChangeDivVisibility } from "./clickActions.js";
+import { NewTaskCreatorPrompt } from "./clickActions.js";
 import { addClickListenerToDiv } from "./listeners.js";
 
 export function divOrganiser() {
+  loadFontAwesome();
+  loadGoogleFonts();
   globalStyling();
   const mainDiv = document.body.appendChild(mainDivCreation());
   mainDivContainerStyling(mainDiv);
@@ -14,17 +16,19 @@ export function divOrganiser() {
   const menuPannel = contentContainer.appendChild(menuPannelCreation());
   menuPannelStyling(menuPannel);
   menuPannelDivCreation(menuPannel);
-  menuPannelDivCreationProjects(menuPannel);
+
   menuPannelDivContainerStyling();
-  menuPannelDivCreationProjectsStyling();
+  const projectTitle = createProjectsTitleTextDiv();
+  menuPannel.appendChild(projectTitle);
+  menuPannelDivCreationProjects(menuPannel);
+  menuPannelDivCreationProjectsTitleStyling();
 
   //Inbox
   const inbox = contentContainer.appendChild(inboxCreation());
   inboxStyling(inbox);
   const inboxContainer = inboxContainerCreation(inbox);
   inboxContainerStyling(inboxContainer);
-  const inboxItem = createDivWithText("Add Task", "task");
-  // Passing NewTaskCreatorPrompt as a reference not a prompt, so it will return the function itself not the value.
+  const inboxItem = createDivWithText("Add Task", "task", "fas fa-plus-circle");
   addClickListenerToDiv(inboxItem, NewTaskCreatorPrompt);
   inboxContainer.appendChild(inboxItem);
   inboxItemStyling(inboxItem);
@@ -33,7 +37,6 @@ export function divOrganiser() {
   inbox.appendChild(taskCreatordiv);
   taskCreatorDivStyling();
   taskCreatorDivPopulate(taskCreatordiv);
-
 
   // Footer
   const footer = mainDiv.appendChild(footerCreation());
@@ -52,17 +55,30 @@ function headerCreation() {
   return header;
 }
 
-function createDivWithText(text, divID) {
+function createDivWithText(text, divID, iconClass = "", useFlex = false) {
   const newDiv = document.createElement("div");
   if (divID) {
     newDiv.id = divID;
   }
-  // Check if text is not undefined and is of type string
-  // If not, convert it to a string or handle it as needed
-  const textContent = text !== undefined && text !== null ? String(text) : "";
 
-  const textNode = document.createTextNode(textContent);
-  newDiv.appendChild(textNode);
+  if (useFlex) {
+    newDiv.style.display = "flex";
+    newDiv.style.alignItems = "center";
+    newDiv.style.flexDirection = "row";
+  }
+
+  if (iconClass) {
+    const icon = document.createElement("i");
+    icon.className = iconClass;
+    icon.style.marginRight = "10px";
+    icon.style.color = "#c34a36";
+    newDiv.appendChild(icon);
+  }
+
+  if (text) {
+    const textNode = document.createTextNode(text);
+    newDiv.appendChild(textNode);
+  }
 
   return newDiv;
 }
@@ -83,9 +99,17 @@ function menuPannelDivCreation(menuPannel) {
   const menuPannelDivContainer = document.createElement("div");
   menuPannelDivContainer.setAttribute("id", "menuPannelDivContainer");
 
-  const inboxDiv = createDivWithText("Inbox", "inboxDiv");
-  const todayDiv = createDivWithText("Today", "todayDiv");
-  const thisWeekDiv = createDivWithText("This Week", "thisWeekDiv");
+  const inboxDiv = createDivWithText("Inbox", "inboxDiv", "fas fa-inbox");
+  const todayDiv = createDivWithText(
+    "Today",
+    "todayDiv",
+    "fas fa-calendar-day"
+  );
+  const thisWeekDiv = createDivWithText(
+    "This Week",
+    "thisWeekDiv",
+    "fas fa-calendar-week"
+  );
 
   menuPannelDivContainer.append(inboxDiv, todayDiv, thisWeekDiv);
   menuPannel.appendChild(menuPannelDivContainer);
@@ -97,21 +121,34 @@ function menuPannelDivCreationProjects(menuPannel) {
     "id",
     "menuPannelDivContainerProjects"
   );
-
-  const projectsTitleTextDiv = createDivWithText(
-    "Add Project",
-    "projectsTitleTextDiv"
-  );
-
-  menuPannelDivContainerProjects.append(projectsTitleTextDiv);
   menuPannel.appendChild(menuPannelDivContainerProjects);
+  projectsDivsCreation(menuPannelDivContainerProjects);
+}
+
+function projectsDivsCreation(menuPannelDivContainerProjects) {
+  const addProject = createDivWithText(
+    "Add Project",
+    "addProjectDiv",
+    "fas fa-plus-circle"
+  );
+  menuPannelDivContainerProjects.append(addProject);
+}
+
+function createProjectsTitleTextDiv() {
+  return createDivWithText(
+    "Projects",
+    "projectsTitleTextDiv",
+    "fas fa-project-diagram",
+    true
+  );
 }
 
 function inboxContainerCreation(inbox) {
   const inboxContainerDiv = createDivWithText("", "InboxContainerDiv");
   const inboxContainerDivTitle = createDivWithText(
     "Inbox",
-    "inboxContainerTitle"
+    "inboxContainerTitle",
+    ""
   );
   inboxContainerDiv.append(inboxContainerDivTitle);
   inbox.appendChild(inboxContainerDiv);
@@ -193,6 +230,7 @@ function globalStyling() {
   document.body.style.minHeight = "100vh";
   document.body.style.display = "flex";
   document.body.style.flexDirection = "column";
+  document.body.style.fontFamily = "'Roboto', sans-serif";
 }
 
 function mainDivContainerStyling(mainDiv) {
@@ -204,7 +242,7 @@ function mainDivContainerStyling(mainDiv) {
 function headerStyling(header) {
   header.style.display = "flex";
   header.style.flexDirection = "row";
-  header.style.backgroundColor = "red";
+  header.style.backgroundColor = "#4b4453";
   header.style.width = "70px%";
   header.style.height = "70px";
 }
@@ -217,14 +255,13 @@ function headerTextStyling() {
   headerText.style.alignItems = "center";
   headerText.style.paddingLeft = "30px";
   headerText.style.fontSize = "45px";
+  headerText.style.color = "#c34a36";
 }
 
 function contentContainerStyling(contentContainer) {
   contentContainer.style.display = "flex";
   contentContainer.style.flexDirection = "row";
   contentContainer.style.justifyContent = "space-between";
-  //   contentContainer.style.height = "100%"
-  // Fill space
   contentContainer.style.flexGrow = 1;
 }
 
@@ -244,19 +281,19 @@ function menuPannelDivContainerStyling() {
   menuPannelContainer.style.display = "flex";
   menuPannelContainer.style.flexDirection = "column";
   menuPannelContainer.style.justifyContent = "space-between";
-  menuPannelContainer.style.backgroundColor = "orange";
   menuPannelContainer.style.marginBottom = "30px";
   menuPannelContainer.style.gap = "15px";
 }
 
-function menuPannelDivCreationProjectsStyling() {
+function menuPannelDivCreationProjectsTitleStyling() {
   const menuPannelContainerProjects = document.getElementById(
-    "menuPannelDivContainerProjects"
+    "projectsTitleTextDiv"
   );
   menuPannelContainerProjects.style.display = "flex";
-  menuPannelContainerProjects.style.flexDirection = "column";
-  menuPannelContainerProjects.style.justifyContent = "space-between";
-  menuPannelContainerProjects.style.backgroundColor = "yellow";
+  menuPannelContainerProjects.style.flexDirection = "row";
+  menuPannelContainerProjects.style.fontSize = "30px";
+  menuPannelContainerProjects.style.marginBottom = "15px";
+  menuPannelContainerProjects.style.color = "#c34a36";
 }
 
 function inboxStyling(inbox) {
@@ -264,22 +301,23 @@ function inboxStyling(inbox) {
   inbox.style.display = "flex";
   inbox.style.justifyContent = "center";
   inbox.style.alignItems = "center";
-  inbox.style.backgroundColor = "blue";
+  inbox.style.backgroundColor = "#b0a8b9";
   inbox.style.width = "70%";
   inbox.style.height = "auto";
+  inbox.style.color = "#ff8066";
 }
 
 function inboxContainerStyling(inboxContainer) {
   inboxContainer.style.display = "flex";
   inboxContainer.style.flexDirection = "column";
-  inboxContainer.style.backgroundColor = "green";
+
   inboxContainer.style.width = "80%";
   inboxContainer.style.height = "80%";
 
   // First CHild
   const firstChild = inboxContainer.firstElementChild;
   if (firstChild) {
-    firstChild.style.backgroundColor = "silver";
+    firstChild.style.backgroundColor = "#b0a8b9";
     firstChild.style.padding = "10px";
     firstChild.style.fontSize = "40px";
   }
@@ -287,7 +325,8 @@ function inboxContainerStyling(inboxContainer) {
 
 function inboxItemStyling(inboxItem) {
   const styledInboxItem = inboxItem;
-  styledInboxItem.style.backgroundColor = "darkGrey";
+  // remember that 0.5 = 50% opacity
+  styledInboxItem.style.backgroundColor = "rgba(132, 94, 194, 0.5)";
   styledInboxItem.style.padding = "10px";
   return styledInboxItem;
 }
@@ -297,7 +336,7 @@ export function taskCreatorDivStyling() {
   if (taskCreatorDiv) {
     taskCreatorDiv.style.display = "none";
     taskCreatorDiv.style.flexDirection = "column";
-    taskCreatorDiv.style.backgroundColor = "violet";
+    taskCreatorDiv.style.backgroundColor = "#845ec2";
     taskCreatorDiv.style.width = "80%";
     taskCreatorDiv.style.height = "80%";
   }
@@ -306,7 +345,24 @@ export function taskCreatorDivStyling() {
 function footerStyling(footer) {
   footer.style.display = "flex";
   footer.style.flexDirection = "row";
-  footer.style.backgroundColor = "orange";
+  footer.style.backgroundColor = "#4b4453";
   footer.style.width = "100%";
   footer.style.height = "30px";
+}
+
+// Icons and Fonts
+function loadFontAwesome() {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href =
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css";
+  document.head.appendChild(link);
+}
+
+function loadGoogleFonts() {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href =
+    "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap";
+  document.head.appendChild(link);
 }
