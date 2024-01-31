@@ -25,9 +25,11 @@ function taskCreatorDivVisibility() {
 
   // Check if the element exists and toggle its display style
   if (taskCreatorDiv) {
-    taskCreatorDiv.style.display = taskCreatorDiv.style.display === "none" ? "flex" : "none";
+    taskCreatorDiv.style.display =
+      taskCreatorDiv.style.display === "none" ? "flex" : "none";
   }
 }
+
 
 
 // User clicks add task div

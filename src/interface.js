@@ -171,6 +171,10 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   // Create the form element
   const form = document.createElement("form");
   form.id = "taskCreationForm";
+  form.id = "taskCreationForm";
+  form.style.display = "flex";
+  form.style.flexDirection = "column";
+  form.style.gap = "10px";
 
   // Helper function to create input fields with labels
   function createInputField(
@@ -180,20 +184,24 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
     isRequired = false
   ) {
     const wrapper = document.createElement("div");
+    {
+      const wrapper = document.createElement("div");
 
-    const label = document.createElement("label");
-    label.textContent = labelText;
-    label.htmlFor = inputName;
-    wrapper.appendChild(label);
+      const label = document.createElement("label");
+      label.textContent = labelText;
+      label.htmlFor = inputName;
+      label.style.marginRight = "5px";
+      wrapper.appendChild(label);
 
-    const input = document.createElement("input");
-    input.type = inputType;
-    input.name = inputName;
-    input.id = inputName;
-    input.required = isRequired;
-    wrapper.appendChild(input);
+      const input = document.createElement("input");
+      input.type = inputType;
+      input.name = inputName;
+      input.id = inputName;
+      input.required = isRequired;
+      wrapper.appendChild(input);
 
-    return wrapper;
+      return wrapper;
+    }
   }
 
   // Append fields to the form
@@ -207,12 +215,12 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   const submitBtn = document.createElement("button");
   submitBtn.type = "submit";
   submitBtn.textContent = "Create Task";
+  submitBtn.style.marginTop = "20px";
   form.appendChild(submitBtn);
 
   // Handle form submission
   form.addEventListener("submit", function (event) {
     event.preventDefault();
-    // Handle the form data here
     console.log("Form submitted");
   });
 
@@ -223,13 +231,20 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   }
 }
 
+function createCloseDiv() {
+  closeDiv = createDivWithText("X", "closeDiv");
+  close.style.fontSize = "30px";
+  close.style.color = "red";
+  return closeDiv;
+}
+
 // Styling
 function globalStyling() {
   document.body.style.margin = "0";
   document.body.style.padding = "0";
   document.body.style.minHeight = "100vh";
   document.body.style.display = "flex";
-  document.body.style.flexDirection = "column";
+  // document.body.style.flexDirection = "column";
   document.body.style.fontFamily = "'Roboto', sans-serif";
 }
 
@@ -334,8 +349,11 @@ function inboxItemStyling(inboxItem) {
 export function taskCreatorDivStyling() {
   const taskCreatorDiv = document.getElementById("taskCreatorDiv");
   if (taskCreatorDiv) {
-    taskCreatorDiv.style.display = "none";
+    //change back to none after tweaking style
+    taskCreatorDiv.style.display = "flex"; // <------------
     taskCreatorDiv.style.flexDirection = "column";
+    taskCreatorDiv.style.justifyContent = "center";
+    taskCreatorDiv.style.alignItems = "center";
     taskCreatorDiv.style.backgroundColor = "#845ec2";
     taskCreatorDiv.style.width = "80%";
     taskCreatorDiv.style.height = "80%";
