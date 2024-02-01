@@ -179,33 +179,6 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   form.style.flexDirection = "column";
   form.style.gap = "10px";
 
-  // Helper function to create input fields with labels
-  function createInputField(
-    labelText,
-    inputType,
-    inputName,
-    isRequired = false
-  ) {
-    {
-      const wrapper = document.createElement("div");
-
-      const label = document.createElement("label");
-      label.textContent = labelText;
-      label.htmlFor = inputName;
-      label.style.marginRight = "5px";
-      wrapper.appendChild(label);
-
-      const input = document.createElement("input");
-      input.type = inputType;
-      input.name = inputName;
-      input.id = inputName;
-      input.required = isRequired;
-      wrapper.appendChild(input);
-
-      return wrapper;
-    }
-  }
-
   // Creates a div with the 'close' icon and adds it ot the contianer taskcreator
   // Something I learnt here, the reason I had to remove the closing () at the end of NewTaskCreatorPrompt is:
   // When you want to add an event listener and you need to pass a function as a callback, you should pass the function reference itself, not the result of its execution.
@@ -218,7 +191,9 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   form.appendChild(createInputField("Title:", "text", "title", true));
   form.appendChild(createInputField("Due Date:", "date", "dueDate"));
   form.appendChild(createInputField("Description:", "text", "description"));
-  form.appendChild(createInputField("Priority:", "text", "priority"));
+  form.appendChild(
+    createInputField("Priority:", "select", "priority", false, [1, 2, 3])
+  );
   form.appendChild(createInputField("Notes:", "text", "notes"));
 
   // Create a submit button
@@ -231,7 +206,14 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   // Handle form submission
   form.addEventListener("submit", function (event) {
     event.preventDefault();
+    // TODO: Store this somewhere, right now it just tells you that it's submitted.
+    // get title from form 
+    const taskTitle = document.getElementById("title").value;
+    // use constructor to create and store new task in the inbox
+    new TaskDiv("InboxContainerDiv", taskTitle);
+    console.log("TESTING>>>Task created: " + taskTitle);
     console.log("Form submitted");
+    storeTaskInInbox()
   });
 
   if (taskCreatorDiv) {
@@ -239,6 +221,67 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   } else {
     console.error("taskCreatorDiv is not provided or is not valid");
   }
+}
+
+// Trying a constructor to create new divs to populate when a user clicks submit on the form. 
+class TaskDiv {
+  constructor(parentElementId, taskName = "Task Name") {
+    this.parentElement = document.getElementById(parentElementId);
+    this.taskName = taskName;
+    this.createTaskDiv();
+  }
+
+  // Create a new div for the inboxcontainer for a submitted task
+  createTaskDiv() {
+    const taskDiv = document.createElement("div");
+    taskDiv.textContent = this.taskName;
+    this.parentElement.appendChild(taskDiv);
+  }
+}
+
+
+// Helper function to create input fields with labels for the form
+function createInputField(
+  labelText,
+  inputType,
+  inputName,
+  isRequired = false,
+  // Added the options parameter to create drop down for priority. Looks trash though.
+  options = null
+) {
+  const wrapper = document.createElement("div");
+
+  const label = document.createElement("label");
+  label.textContent = labelText;
+  label.htmlFor = inputName;
+  label.style.marginRight = "5px";
+  wrapper.appendChild(label);
+
+  let input;
+  if (options) {
+    input = document.createElement("select");
+    options.forEach((optionValue) => {
+      const option = document.createElement("option");
+      option.value = optionValue;
+      option.textContent = optionValue;
+      input.appendChild(option);
+    });
+  } else {
+    input = document.createElement("input");
+    input.type = inputType;
+  }
+
+  input.name = inputName;
+  input.id = inputName;
+  input.required = isRequired;
+  wrapper.appendChild(input);
+
+  if (inputName === "notes") {
+    input.style.width = "550px";
+    input.style.height = "70px";
+  }
+
+  return wrapper;
 }
 
 function createCloseIconDiv() {
