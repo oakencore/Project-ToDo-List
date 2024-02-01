@@ -1,37 +1,38 @@
-export function NewTaskCreatorPrompt() {
+// This function is used toggle the visibility of the task creator and inbox containers.
+// It works by checking what is clicked, if it's the add taskPrompt, show taskCreator. If it's taskCreator, show inbox.
+export function NewTaskCreatorPrompt(event) {
   console.log("Div clicked!");
-  // this will refer to whatever is clicked
-  ChangeInboxVisibility(this);
-  taskCreatorDivVisibility();
-}
+  // What is clicked?
+  const clickedElement = event.target;
 
-function ChangeInboxVisibility(childDiv) {
-  // USAGE:
-  // const divName = document.getElementById("divID");
-  // ChangeInboxVisibility(childDivName)
-  console.log("ChangeInboxVisibility called for", childDiv);
-
-  const parentDiv = childDiv.parentNode;
-
-  if (parentDiv) {
-    console.log("Hiding parent div", parentDiv);
-    parentDiv.style.display = "none";
+  // Check if it's the 'addTaskPrompt' / Hide the inbox and show the task creator
+  if (
+    clickedElement.id === "addTaskPrompt" ||
+    clickedElement.closest("#addTaskPrompt")
+  ) {
+    ChangeInboxVisibility(false);
+    taskCreatorDivVisibility(true);
+  }
+  // Check if it's the 'taskCreatorDiv' or a child of it / Show the inbox and hide the task creator
+  else if (
+    clickedElement.id === "taskCreatorDiv" ||
+    clickedElement.closest("#taskCreatorDiv")
+  ) {
+    ChangeInboxVisibility(true);
+    taskCreatorDivVisibility(false);
   }
 }
 
-function taskCreatorDivVisibility() {
-  console.log("taskCreatorDivVisibility called");
+function ChangeInboxVisibility(show) {
+  const inboxContainer = document.getElementById("InboxContainerDiv");
+  if (inboxContainer) {
+    inboxContainer.style.display = show ? "flex" : "none";
+  }
+}
+
+function taskCreatorDivVisibility(show) {
   const taskCreatorDiv = document.getElementById("taskCreatorDiv");
-
-  // Check if the element exists and toggle its display style
   if (taskCreatorDiv) {
-    taskCreatorDiv.style.display =
-      taskCreatorDiv.style.display === "none" ? "flex" : "none";
+    taskCreatorDiv.style.display = show ? "flex" : "none";
   }
 }
-
-
-
-// User clicks add task div
-// Inbox container view should be set to none.
-// New Task Creation Container should be set to visible.

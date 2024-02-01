@@ -28,7 +28,11 @@ export function divOrganiser() {
   inboxStyling(inbox);
   const inboxContainer = inboxContainerCreation(inbox);
   inboxContainerStyling(inboxContainer);
-  const inboxItem = createDivWithText("Add Task", "task", "fas fa-plus-circle");
+  const inboxItem = createDivWithText(
+    "Add Task",
+    "addTaskPrompt",
+    "fas fa-plus-circle"
+  );
   addClickListenerToDiv(inboxItem, NewTaskCreatorPrompt);
   inboxContainer.appendChild(inboxItem);
   inboxItemStyling(inboxItem);
@@ -171,7 +175,6 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   // Create the form element
   const form = document.createElement("form");
   form.id = "taskCreationForm";
-  form.id = "taskCreationForm";
   form.style.display = "flex";
   form.style.flexDirection = "column";
   form.style.gap = "10px";
@@ -183,7 +186,6 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
     inputName,
     isRequired = false
   ) {
-    const wrapper = document.createElement("div");
     {
       const wrapper = document.createElement("div");
 
@@ -203,6 +205,14 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
       return wrapper;
     }
   }
+
+  // Creates a div with the 'close' icon and adds it ot the contianer taskcreator
+  // Something I learnt here, the reason I had to remove the closing () at the end of NewTaskCreatorPrompt is:
+  // When you want to add an event listener and you need to pass a function as a callback, you should pass the function reference itself, not the result of its execution.
+  addClickListenerToDiv(
+    taskCreatorDiv.appendChild(createCloseIconDiv()),
+    NewTaskCreatorPrompt
+  );
 
   // Append fields to the form
   form.appendChild(createInputField("Title:", "text", "title", true));
@@ -227,14 +237,16 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   if (taskCreatorDiv) {
     taskCreatorDiv.appendChild(form);
   } else {
-    console.error("taskCreatorDiv is not provided or is not a valid element");
+    console.error("taskCreatorDiv is not provided or is not valid");
   }
 }
 
-function createCloseDiv() {
-  closeDiv = createDivWithText("X", "closeDiv");
-  close.style.fontSize = "30px";
-  close.style.color = "red";
+function createCloseIconDiv() {
+  const closeDiv = createDivWithText("", "closeDiv", "fas fa-times");
+  closeDiv.style.position = "absolute";
+  closeDiv.style.top = "10px";
+  closeDiv.style.right = "10px";
+  closeDiv.style.cursor = "pointer";
   return closeDiv;
 }
 
@@ -258,7 +270,7 @@ function headerStyling(header) {
   header.style.display = "flex";
   header.style.flexDirection = "row";
   header.style.backgroundColor = "#4b4453";
-  header.style.width = "70px%";
+  header.style.width = "70";
   header.style.height = "70px";
 }
 
@@ -350,13 +362,14 @@ export function taskCreatorDivStyling() {
   const taskCreatorDiv = document.getElementById("taskCreatorDiv");
   if (taskCreatorDiv) {
     //change back to none after tweaking style
-    taskCreatorDiv.style.display = "flex"; // <------------
+    taskCreatorDiv.style.display = "none"; // <------------
     taskCreatorDiv.style.flexDirection = "column";
     taskCreatorDiv.style.justifyContent = "center";
     taskCreatorDiv.style.alignItems = "center";
     taskCreatorDiv.style.backgroundColor = "#845ec2";
     taskCreatorDiv.style.width = "80%";
     taskCreatorDiv.style.height = "80%";
+    taskCreatorDiv.style.position = "relative";
   }
 }
 
