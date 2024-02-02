@@ -208,12 +208,16 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
     event.preventDefault();
     // TODO: Store this somewhere, right now it just tells you that it's submitted.
     // get title from form 
-    const taskTitle = document.getElementById("title").value;
+    const taskName = document.getElementById("title").value;
+    const taskDescription = document.getElementById("description").value;
+    const taskDueDate = document.getElementById("dueDate").value;
+    const taskPriority = document.getElementById("priority").value;
     // use constructor to create and store new task in the inbox
-    new TaskDiv("InboxContainerDiv", taskTitle);
-    console.log("TESTING>>>Task created: " + taskTitle);
+    new TaskDiv("InboxContainerDiv", taskName,taskDescription,taskDueDate,taskPriority);
+    console.log("TESTING>>>Task created: " + taskName);
     console.log("Form submitted");
-    storeTaskInInbox()
+    //Should change the name of this function. It's misleading. Here were toggling visibility to show the inbox.
+    NewTaskCreatorPrompt(event)
   });
 
   if (taskCreatorDiv) {
@@ -225,18 +229,61 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
 
 // Trying a constructor to create new divs to populate when a user clicks submit on the form. 
 class TaskDiv {
-  constructor(parentElementId, taskName = "Task Name") {
+  // Counter for number of divs. 
+  static counter = 0
+
+  constructor(parentElementId, taskName = "Task Name", description = "", dueDate = "", priority = "") {
     this.parentElement = document.getElementById(parentElementId);
-    this.taskName = taskName;
+    this.taskName = `${taskName}`;
+    this.description = description;
+    this.dueDate = dueDate;
+    this.priority = priority;
+    TaskDiv.counter++;
     this.createTaskDiv();
   }
 
   // Create a new div for the inboxcontainer for a submitted task
   createTaskDiv() {
-    const taskDiv = document.createElement("div");
-    taskDiv.textContent = this.taskName;
+    // Container div for each new task using flexbox.
+    const taskDiv = createDivWithText(this.taskName,"Task " + TaskDiv.counter, "", true);
+    // Create and insert checkbox at the START of the div. Took a long time to figure this out.
+    const checkBox = createCheckbox();
+    taskDiv.insertBefore(checkBox, taskDiv.firstChild);
+    // Add task description
+    if (this.description) {
+      const descriptionText = document.createTextNode(` Description: ${this.description}`);
+      taskDiv.appendChild(descriptionText);
+    }
+    // Add due date
+    if (this.dueDate) {
+      const dueDateText = document.createTextNode(` Due: ${this.dueDate}`);
+      taskDiv.appendChild(dueDateText);
+    }
+    // Add priority
+    if (this.priority) {
+      const priorityText = document.createTextNode(` Priority: ${this.priority}`);
+      taskDiv.appendChild(priorityText);
+    }
+    // Style the new task div
+    newTaskStyling(taskDiv)
+    //Append the div to the parent
     this.parentElement.appendChild(taskDiv);
   }
+}
+
+// Self explanatory function. Used in the constructor for new tasks to show checkbox infront of task name
+function createCheckbox() {
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkboxStyling(checkbox)
+  return checkbox;
+}
+
+function checkboxStyling(checkBox) {
+  checkBox.style.accentColor = "#845ec2";
+  checkBox.style.cursor = "pointer";
+  checkBox.style.transform = "scale(1.5)";
+  checkBox.style.marginRight = "10px";
 }
 
 
@@ -293,6 +340,8 @@ function createCloseIconDiv() {
   return closeDiv;
 }
 
+
+
 // Styling
 function globalStyling() {
   document.body.style.margin = "0";
@@ -301,6 +350,17 @@ function globalStyling() {
   document.body.style.display = "flex";
   // document.body.style.flexDirection = "column";
   document.body.style.fontFamily = "'Roboto', sans-serif";
+}
+
+function newTaskStyling(newTask) {
+  newTask.style.display = "flex";
+  newTask.style.flexDirection = "row";
+  newTask.style.alignItems = "center";
+  newTask.style.marginTop = "10px";
+  newTask.style.padding = "5px";
+  newTask.style.gap = "10px";
+  newTask.style.backgroundColor = TaskDiv.counter % 2 === 0 ? "#6b6a66" : "#8a8986";
+  newTask.style.borderRadius = "5px";
 }
 
 function mainDivContainerStyling(mainDiv) {
