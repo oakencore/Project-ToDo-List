@@ -23,14 +23,14 @@ export function NewTaskCreatorPrompt(event) {
   }
 }
 
-function ChangeInboxVisibility(show) {
+export function ChangeInboxVisibility(show) {
   const inboxContainer = document.getElementById("InboxContainerDiv");
   if (inboxContainer) {
     inboxContainer.style.display = show ? "flex" : "none";
   }
 }
 
-function taskCreatorDivVisibility(show) {
+export function taskCreatorDivVisibility(show) {
   const taskCreatorDiv = document.getElementById("taskCreatorDiv");
   if (taskCreatorDiv) {
     taskCreatorDiv.style.display = show ? "flex" : "none";

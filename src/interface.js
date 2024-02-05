@@ -1,9 +1,12 @@
-import { NewTaskCreatorPrompt } from "./clickActions.js";
+import { NewTaskCreatorPrompt,ChangeInboxVisibility,taskCreatorDivVisibility } from "./clickActions.js";
 import { addClickListenerToDiv } from "./listeners.js";
-import { compareAsc, format } from "date-fns";
+import { compareAsc, format, parseJSON } from "date-fns";
+import { loadFontAwesome, loadGoogleFonts, globalStyling, mainDivContainerStyling, headerStyling, headerTextStyling, contentContainerStyling, menuPannelStyling, menuPannelDivContainerStyling, menuPannelDivCreationProjectsTitleStyling, inboxStyling, inboxContainerStyling, ClickStyling, inboxItemStyling, taskCreatorDivStyling, footerStyling, newTaskStyling } from "./stylingFunctions.js";
 
 export function divOrganiser() {
-  clearLocalStorage();
+  // clearLocalStorage();
+  populateDummyLocalStorage(10);
+  parsedStorage();
   loadFontAwesome();
   loadGoogleFonts();
   globalStyling();
@@ -27,6 +30,7 @@ export function divOrganiser() {
 
   //Inbox
   const inbox = contentContainer.appendChild(inboxCreation());
+  menuTabFunction()
   inboxStyling(inbox);
   const inboxContainer = inboxContainerCreation(inbox);
   inboxContainerStyling(inboxContainer);
@@ -35,6 +39,7 @@ export function divOrganiser() {
     "addTaskPrompt",
     "fas fa-plus-circle"
   );
+  ClickStyling(inboxItem)
   addClickListenerToDiv(inboxItem, NewTaskCreatorPrompt);
   inboxContainer.appendChild(inboxItem);
   inboxItemStyling(inboxItem);
@@ -46,6 +51,7 @@ export function divOrganiser() {
   // Footer
   const footer = mainDiv.appendChild(footerCreation());
   footerStyling(footer);
+
 }
 
 function mainDivCreation() {
@@ -105,19 +111,23 @@ function menuPannelDivCreation(menuPannel) {
   menuPannelDivContainer.setAttribute("id", "menuPannelDivContainer");
 
   const inboxDiv = createDivWithText("Inbox", "inboxDiv", "fas fa-inbox");
+  ClickStyling(inboxDiv)
   const todayDiv = createDivWithText(
     "Today",
     "todayDiv",
     "fas fa-calendar-day"
   );
+  ClickStyling(todayDiv)
   const thisWeekDiv = createDivWithText(
     "This Week",
     "thisWeekDiv",
     "fas fa-calendar-week"
   );
+  ClickStyling(thisWeekDiv)
 
   menuPannelDivContainer.append(inboxDiv, todayDiv, thisWeekDiv);
   menuPannel.appendChild(menuPannelDivContainer);
+
   }
 
 // Function to store the user input from creating a new task locally. 
@@ -125,24 +135,24 @@ function storeLocally(taskName, dueDate, description, priority, notes) {
   // Counter because there will be multiple tasks
   let counter = 0;
 
-
-  // TODO: HANDLE DUPLICATE TASKNAMES
-
   //Checks to see if there is a number that matches a taskName. If there is, it retrives the current taskname and number and converts the number to an int
-  // using parseint. It then increments the counter by 1. The new variable is then assigned to counter variable above. 
+  // using parseint. It then increments the counter by 1. The new variable is then assigned to counter variable above.
   if (localStorage.getItem(taskName + "number")) {
     counter = parseInt(localStorage.getItem(taskName + "number")) + 1;
   }
 
-  // Stores this to localStorage after turning it into a JSON string. 
-  localStorage.setItem(taskName, JSON.stringify({
-    title: taskName,
-    dueDate: dueDate,
-    description: description,
-    priority: priority,
-    notes: notes,
-    number: counter
-  }));
+  // Stores this to localStorage after turning it into a JSON string.
+  localStorage.setItem(
+    taskName,
+    JSON.stringify({
+      title: taskName,
+      dueDate: dueDate,
+      description: description,
+      priority: priority,
+      notes: notes,
+      number: counter,
+    })
+  );
 
   // get the items to store
   const inputElements = {
@@ -161,12 +171,78 @@ function clearLocalStorage() {
   }
 }
 
+// Function to populate the localStorage dummy data objects
+function populateDummyLocalStorage(numberOfObjects) {
+  
+
+  let currentCount = localStorage.length;
+  clearLocalStorage();
+
+  for (let i = 0; i < numberOfObjects; i++) {
+
+    const key = `task-${currentCount + i}`;
+
+    const value = JSON.stringify({
+      title: `taskName${currentCount + i}`,
+      dueDate: "01/01/2024",
+      description: "description",
+      priority: "1",
+      notes: "notes",
+      number: currentCount + i,
+    });
+    localStorage.setItem(key, value);
+  }
+}
+
+function parsedStorage() {
+  // Object to store all parsed key/value pairs from localStorage.
+  let localStorageItems = {};
+  console.log("parsedStorage is called");
+  // For loop to get the key-value pairs and parse them
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    const value = localStorage.getItem(key);
+
+    // Gotta parse each item before adding it to the localStorageItems object
+    localStorageItems[key] = JSON.parse(value);
+  }
+  console.log("parsedStorage successfully run:", localStorageItems);
+  console.log("Type:", typeof localStorageItems);
+
+  for (let key in localStorageItems) {
+    if (localStorageItems.hasOwnProperty(key)) {
+      console.log(key, localStorageItems[key].dueDate);
+    }
+  }
+
+  // return localStorageItems;
+
+  // function filter(localStorageItems[]) {
+
+  // }
+}
+
+
+
+
+
 
 // TODO function to add clicklisteners to divs in the menu to allow for tab navigation
 function menuTabFunction() {
-  addClickListenerToDiv(inboxDiv)
-  addClickListenerToDiv(todayDiv)
-  addClickListenerToDiv(thisWeekDiv)
+  addClickListenerToDiv(inboxDiv,showInbox)
+  // addClickListenerToDiv(todayDiv,showToday)
+  // addClickListenerToDiv(thisWeekDiv,showWeek)
+
+  function showInbox() {
+    ChangeInboxVisibility(true)
+    taskCreatorDivVisibility(false)
+  }
+  // function showToday() {
+    
+  // }
+  // function showWeek() {
+    
+  // }
 }
 
 function menuPannelDivCreationProjects(menuPannel) {
@@ -185,6 +261,7 @@ function projectsDivsCreation(menuPannelDivContainerProjects) {
     "addProjectDiv",
     "fas fa-plus-circle"
   );
+  ClickStyling(addProject)
   menuPannelDivContainerProjects.append(addProject);
 }
 
@@ -270,7 +347,9 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
     console.log("Form submitted");
     // Store inputed data locally. 
     storeLocally(taskName, dueDate, description,priority,notes);
-    console.log("Form Data stored locally")  
+    console.log("Form Data stored locally")
+    parseDate()  
+    console.log("parseDate() run")
     //Should change the name of this function. It's misleading. Here were toggling visibility to show the inbox.
     NewTaskCreatorPrompt(event)
   });
@@ -290,7 +369,7 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
 }
 
 // Trying a constructor to create new divs to populate when a user clicks submit on the form. 
-class TaskDiv {
+export class TaskDiv {
   // Counter for number of divs. 
   static counter = 0
 
@@ -403,162 +482,3 @@ function createCloseIconDiv() {
 }
 
 
-
-// Styling
-function globalStyling() {
-  document.body.style.margin = "0";
-  document.body.style.padding = "0";
-  document.body.style.minHeight = "100vh";
-  document.body.style.display = "flex";
-  // document.body.style.flexDirection = "column";
-  document.body.style.fontFamily = "'Roboto', sans-serif";
-}
-
-function newTaskStyling(newTask) {
-  newTask.style.display = "flex";
-  newTask.style.flexDirection = "row";
-  newTask.style.alignItems = "center";
-  newTask.style.marginTop = "10px";
-  newTask.style.padding = "5px";
-  newTask.style.gap = "10px";
-  newTask.style.backgroundColor = TaskDiv.counter % 2 === 0 ? "#6b6a66" : "#8a8986";
-  newTask.style.borderRadius = "5px";
-}
-
-function mainDivContainerStyling(mainDiv) {
-  mainDiv.style.display = "flex";
-  mainDiv.style.flexDirection = "column";
-  mainDiv.style.flexGrow = 1;
-}
-
-function headerStyling(header) {
-  header.style.display = "flex";
-  header.style.flexDirection = "row";
-  header.style.backgroundColor = "#4b4453";
-  header.style.width = "70";
-  header.style.height = "70px";
-}
-
-function headerTextStyling() {
-  headerText = document.getElementById("headerText");
-  headerText.style.display = "flex";
-  headerText.style.flexDirection = "row";
-  headerText.style.justifyContent = "center";
-  headerText.style.alignItems = "center";
-  headerText.style.paddingLeft = "30px";
-  headerText.style.fontSize = "45px";
-  headerText.style.color = "#c34a36";
-}
-
-function contentContainerStyling(contentContainer) {
-  contentContainer.style.display = "flex";
-  contentContainer.style.flexDirection = "row";
-  contentContainer.style.justifyContent = "space-between";
-  contentContainer.style.flexGrow = 1;
-}
-
-function menuPannelStyling(menuPannel) {
-  menuPannel.style.flexGrow = 1;
-  menuPannel.style.display = "flex";
-  menuPannel.style.flexDirection = "column";
-  menuPannel.style.justifyContent = "center";
-  menuPannel.style.backgroundColor = "grey";
-  menuPannel.style.width = "20%";
-  menuPannel.style.height = "auto";
-  menuPannel.style.padding = "20px";
-}
-
-function menuPannelDivContainerStyling() {
-  const menuPannelContainer = document.getElementById("menuPannelDivContainer");
-  menuPannelContainer.style.display = "flex";
-  menuPannelContainer.style.flexDirection = "column";
-  menuPannelContainer.style.justifyContent = "space-between";
-  menuPannelContainer.style.marginBottom = "30px";
-  menuPannelContainer.style.gap = "15px";
-}
-
-function menuPannelDivCreationProjectsTitleStyling() {
-  const menuPannelContainerProjects = document.getElementById(
-    "projectsTitleTextDiv"
-  );
-  menuPannelContainerProjects.style.display = "flex";
-  menuPannelContainerProjects.style.flexDirection = "row";
-  menuPannelContainerProjects.style.fontSize = "30px";
-  menuPannelContainerProjects.style.marginBottom = "15px";
-  menuPannelContainerProjects.style.color = "#c34a36";
-}
-
-function inboxStyling(inbox) {
-  inbox.style.flexGrow = 1;
-  inbox.style.display = "flex";
-  inbox.style.justifyContent = "center";
-  inbox.style.alignItems = "center";
-  inbox.style.backgroundColor = "#b0a8b9";
-  inbox.style.width = "70%";
-  inbox.style.height = "auto";
-  inbox.style.color = "#ff8066";
-}
-
-function inboxContainerStyling(inboxContainer) {
-  inboxContainer.style.display = "flex";
-  inboxContainer.style.flexDirection = "column";
-
-  inboxContainer.style.width = "80%";
-  inboxContainer.style.height = "80%";
-
-  // First CHild
-  const firstChild = inboxContainer.firstElementChild;
-  if (firstChild) {
-    firstChild.style.backgroundColor = "#b0a8b9";
-    firstChild.style.padding = "10px";
-    firstChild.style.fontSize = "40px";
-  }
-}
-
-function inboxItemStyling(inboxItem) {
-  const styledInboxItem = inboxItem;
-  // remember that 0.5 = 50% opacity
-  styledInboxItem.style.backgroundColor = "rgba(132, 94, 194, 0.5)";
-  styledInboxItem.style.padding = "10px";
-  return styledInboxItem;
-}
-
-export function taskCreatorDivStyling() {
-  const taskCreatorDiv = document.getElementById("taskCreatorDiv");
-  if (taskCreatorDiv) {
-    //change back to none after tweaking style
-    taskCreatorDiv.style.display = "none"; // <------------
-    taskCreatorDiv.style.flexDirection = "column";
-    taskCreatorDiv.style.justifyContent = "center";
-    taskCreatorDiv.style.alignItems = "center";
-    taskCreatorDiv.style.backgroundColor = "#845ec2";
-    taskCreatorDiv.style.width = "80%";
-    taskCreatorDiv.style.height = "80%";
-    taskCreatorDiv.style.position = "relative";
-  }
-}
-
-function footerStyling(footer) {
-  footer.style.display = "flex";
-  footer.style.flexDirection = "row";
-  footer.style.backgroundColor = "#4b4453";
-  footer.style.width = "100%";
-  footer.style.height = "30px";
-}
-
-// Icons and Fonts
-function loadFontAwesome() {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href =
-    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css";
-  document.head.appendChild(link);
-}
-
-function loadGoogleFonts() {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href =
-    "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap";
-  document.head.appendChild(link);
-}
