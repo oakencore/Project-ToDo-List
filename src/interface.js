@@ -1,7 +1,9 @@
 import { NewTaskCreatorPrompt } from "./clickActions.js";
 import { addClickListenerToDiv } from "./listeners.js";
+import { compareAsc, format } from "date-fns";
 
 export function divOrganiser() {
+  clearLocalStorage();
   loadFontAwesome();
   loadGoogleFonts();
   globalStyling();
@@ -41,7 +43,6 @@ export function divOrganiser() {
   inbox.appendChild(taskCreatordiv);
   taskCreatorDivStyling();
   taskCreatorDivPopulate(taskCreatordiv);
-
   // Footer
   const footer = mainDiv.appendChild(footerCreation());
   footerStyling(footer);
@@ -117,6 +118,55 @@ function menuPannelDivCreation(menuPannel) {
 
   menuPannelDivContainer.append(inboxDiv, todayDiv, thisWeekDiv);
   menuPannel.appendChild(menuPannelDivContainer);
+  }
+
+// Function to store the user input from creating a new task locally. 
+function storeLocally(taskName, dueDate, description, priority, notes) {
+  // Counter because there will be multiple tasks
+  let counter = 0;
+
+
+  // TODO: HANDLE DUPLICATE TASKNAMES
+
+  //Checks to see if there is a number that matches a taskName. If there is, it retrives the current taskname and number and converts the number to an int
+  // using parseint. It then increments the counter by 1. The new variable is then assigned to counter variable above. 
+  if (localStorage.getItem(taskName + "number")) {
+    counter = parseInt(localStorage.getItem(taskName + "number")) + 1;
+  }
+
+  // Stores this to localStorage after turning it into a JSON string. 
+  localStorage.setItem(taskName, JSON.stringify({
+    title: taskName,
+    dueDate: dueDate,
+    description: description,
+    priority: priority,
+    notes: notes,
+    number: counter
+  }));
+
+  // get the items to store
+  const inputElements = {
+    title: document.getElementById("title"),
+    dueDate: document.getElementById("dueDate"),
+    description: document.getElementById("description"),
+    priority: document.getElementById("priority"),
+    notes: document.getElementById("notes"),
+  };
+}
+
+// Clear localStorage
+function clearLocalStorage() {
+  if (localStorage) {
+    localStorage.clear();
+  }
+}
+
+
+// TODO function to add clicklisteners to divs in the menu to allow for tab navigation
+function menuTabFunction() {
+  addClickListenerToDiv(inboxDiv)
+  addClickListenerToDiv(todayDiv)
+  addClickListenerToDiv(thisWeekDiv)
 }
 
 function menuPannelDivCreationProjects(menuPannel) {
@@ -209,21 +259,33 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
     // TODO: Store this somewhere, right now it just tells you that it's submitted.
     // get title from form 
     const taskName = document.getElementById("title").value;
+    console.log(taskName)
     const taskDescription = document.getElementById("description").value;
     const taskDueDate = document.getElementById("dueDate").value;
     const taskPriority = document.getElementById("priority").value;
+   
     // use constructor to create and store new task in the inbox
     new TaskDiv("InboxContainerDiv", taskName,taskDescription,taskDueDate,taskPriority);
     console.log("TESTING>>>Task created: " + taskName);
     console.log("Form submitted");
+    // Store inputed data locally. 
+    storeLocally(taskName, dueDate, description,priority,notes);
+    console.log("Form Data stored locally")  
     //Should change the name of this function. It's misleading. Here were toggling visibility to show the inbox.
     NewTaskCreatorPrompt(event)
   });
 
+    // //Storage
+
+    // const t1 = localStorage.getItem("taskName");
+    // console.log("localStoreage taskName:", t1);
+ // Store the input elements themselves in an object for easy reference later
+
+
   if (taskCreatorDiv) {
     taskCreatorDiv.appendChild(form);
   } else {
-    console.error("taskCreatorDiv is not provided or is not valid");
+    console.error("taskCreatorDiv is not provided or there's an error");
   }
 }
 
