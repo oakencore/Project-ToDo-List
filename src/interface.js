@@ -173,10 +173,9 @@ function clearLocalStorage() {
 
 // Function to populate the localStorage dummy data objects
 function populateDummyLocalStorage(numberOfObjects) {
-  
-
-  let currentCount = localStorage.length;
   clearLocalStorage();
+  let currentCount = localStorage.length;
+  
 
   for (let i = 0; i < numberOfObjects; i++) {
 
@@ -184,7 +183,7 @@ function populateDummyLocalStorage(numberOfObjects) {
 
     const value = JSON.stringify({
       title: `taskName${currentCount + i}`,
-      dueDate: "01/01/2024",
+      dueDate: "05/02/2024",
       description: "description",
       priority: "1",
       notes: "notes",
@@ -214,12 +213,6 @@ function parsedStorage() {
       console.log(key, localStorageItems[key].dueDate);
     }
   }
-
-  // return localStorageItems;
-
-  // function filter(localStorageItems[]) {
-
-  // }
 }
 
 
