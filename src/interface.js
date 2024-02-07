@@ -1,12 +1,13 @@
 import { NewTaskCreatorPrompt,ChangeInboxVisibility,taskCreatorDivVisibility } from "./clickActions.js";
 import { addClickListenerToDiv } from "./listeners.js";
-import { compareAsc, format, parseJSON } from "date-fns";
+import { isToday, parseJSON } from "date-fns";
 import { loadFontAwesome, loadGoogleFonts, globalStyling, mainDivContainerStyling, headerStyling, headerTextStyling, contentContainerStyling, menuPannelStyling, menuPannelDivContainerStyling, menuPannelDivCreationProjectsTitleStyling, inboxStyling, inboxContainerStyling, ClickStyling, inboxItemStyling, taskCreatorDivStyling, footerStyling, newTaskStyling } from "./stylingFunctions.js";
 
 export function divOrganiser() {
   // clearLocalStorage();
   populateDummyLocalStorage(10);
-  parsedStorage();
+  const localStorageItems = parsedStorage();
+  getTodaysTasks(localStorageItems)
   loadFontAwesome();
   loadGoogleFonts();
   globalStyling();
@@ -175,6 +176,10 @@ function clearLocalStorage() {
 function populateDummyLocalStorage(numberOfObjects) {
   clearLocalStorage();
   let currentCount = localStorage.length;
+
+  let dueDate = new Date(2024,1,7);
+
+  let dueDateISO = dueDate.toISOString();
   
 
   for (let i = 0; i < numberOfObjects; i++) {
@@ -183,7 +188,7 @@ function populateDummyLocalStorage(numberOfObjects) {
 
     const value = JSON.stringify({
       title: `taskName${currentCount + i}`,
-      dueDate: "05/02/2024",
+      dueDate: dueDateISO,
       description: "description",
       priority: "1",
       notes: "notes",
@@ -197,20 +202,41 @@ function parsedStorage() {
   // Object to store all parsed key/value pairs from localStorage.
   let localStorageItems = {};
   console.log("parsedStorage is called");
+
   // For loop to get the key-value pairs and parse them
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     const value = localStorage.getItem(key);
 
-    // Gotta parse each item before adding it to the localStorageItems object
-    localStorageItems[key] = JSON.parse(value);
+    //Parse the stringyfied json
+    const parsedValue = JSON.parse(value);
+
+    // Checking the format of the date
+    console.log(parsedValue.dueDate);
+    console.log("Type of dueDate:",typeof parsedValue.dueDate);
+    // Add the parsed object to the localstorageitems
+    localStorageItems[key] = parsedValue;
   }
   console.log("parsedStorage successfully run:", localStorageItems);
   console.log("Type:", typeof localStorageItems);
+  return localStorageItems;
+}
+
+  //   // log the priority of "task-0"
+  //   let priorityOfTask0 = localStorageItems["task-0"].priority;
+  //   console.log(priorityOfTask0); 
+  // }
+
+function getTodaysTasks(localStorageItems) {
+  console.log("getTodaysDate is called");
+  console.log(localStorageItems);
 
   for (let key in localStorageItems) {
     if (localStorageItems.hasOwnProperty(key)) {
-      console.log(key, localStorageItems[key].dueDate);
+      let taskDate = parseJSON(localStorageItems[key].dueDate);
+      console.log(taskDate)
+      let result = isToday(taskDate);
+      console.log(`${key} is due today:`, result);
     }
   }
 }
