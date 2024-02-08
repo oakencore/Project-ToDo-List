@@ -1,6 +1,5 @@
 import { TaskDiv } from "./interface";
 
-
 // Styling
 export function globalStyling() {
   document.body.style.margin = "0";
@@ -17,7 +16,8 @@ export function newTaskStyling(newTask) {
   newTask.style.marginTop = "10px";
   newTask.style.padding = "5px";
   newTask.style.gap = "10px";
-  newTask.style.backgroundColor = TaskDiv.counter % 2 === 0 ? "#6b6a66" : "#8a8986";
+  newTask.style.backgroundColor =
+    TaskDiv.counter % 2 === 0 ? "#6b6a66" : "#8a8986";
   newTask.style.borderRadius = "5px";
 }
 export function mainDivContainerStyling(mainDiv) {
@@ -48,33 +48,33 @@ export function contentContainerStyling(contentContainer) {
   contentContainer.style.justifyContent = "space-between";
   contentContainer.style.flexGrow = 1;
 }
-export function menuPannelStyling(menuPannel) {
-  menuPannel.style.flexGrow = 1;
-  menuPannel.style.display = "flex";
-  menuPannel.style.flexDirection = "column";
-  menuPannel.style.justifyContent = "center";
-  menuPannel.style.backgroundColor = "grey";
-  menuPannel.style.width = "20%";
-  menuPannel.style.height = "auto";
-  menuPannel.style.padding = "20px";
+export function menuPanelStyling(menuPanel) {
+  menuPanel.style.flexGrow = 1;
+  menuPanel.style.display = "flex";
+  menuPanel.style.flexDirection = "column";
+  menuPanel.style.justifyContent = "center";
+  menuPanel.style.backgroundColor = "grey";
+  menuPanel.style.width = "20%";
+  menuPanel.style.height = "auto";
+  menuPanel.style.padding = "20px";
 }
-export function menuPannelDivContainerStyling() {
-  const menuPannelContainer = document.getElementById("menuPannelDivContainer");
-  menuPannelContainer.style.display = "flex";
-  menuPannelContainer.style.flexDirection = "column";
-  menuPannelContainer.style.justifyContent = "space-between";
-  menuPannelContainer.style.marginBottom = "30px";
-  menuPannelContainer.style.gap = "15px";
+export function menuPanelDivContainerStyling() {
+  const menuPanelContainer = document.getElementById("menuPanelDivContainer");
+  menuPanelContainer.style.display = "flex";
+  menuPanelContainer.style.flexDirection = "column";
+  menuPanelContainer.style.justifyContent = "space-between";
+  menuPanelContainer.style.marginBottom = "30px";
+  menuPanelContainer.style.gap = "15px";
 }
-export function menuPannelDivCreationProjectsTitleStyling() {
-  const menuPannelContainerProjects = document.getElementById(
+export function menuPanelDivCreationProjectsTitleStyling() {
+  const menuPanelContainerProjects = document.getElementById(
     "projectsTitleTextDiv"
   );
-  menuPannelContainerProjects.style.display = "flex";
-  menuPannelContainerProjects.style.flexDirection = "row";
-  menuPannelContainerProjects.style.fontSize = "30px";
-  menuPannelContainerProjects.style.marginBottom = "15px";
-  menuPannelContainerProjects.style.color = "#c34a36";
+  menuPanelContainerProjects.style.display = "flex";
+  menuPanelContainerProjects.style.flexDirection = "row";
+  menuPanelContainerProjects.style.fontSize = "30px";
+  menuPanelContainerProjects.style.marginBottom = "15px";
+  menuPanelContainerProjects.style.color = "#c34a36";
 }
 export function inboxStyling(inbox) {
   inbox.style.flexGrow = 1;
@@ -87,7 +87,7 @@ export function inboxStyling(inbox) {
   inbox.style.color = "#ff8066";
 }
 export function inboxContainerStyling(inboxContainer) {
-  inboxContainer.style.display = "flex";
+  inboxContainer.style.display = "flex"; // <------------
   inboxContainer.style.flexDirection = "column";
 
   inboxContainer.style.width = "80%";
@@ -123,6 +123,22 @@ export function taskCreatorDivStyling() {
     taskCreatorDiv.style.position = "relative";
   }
 }
+
+export function todayContainerStyling(todayContainer) {
+  todayContainer.style.display = "none"; // <------------
+  todayContainer.style.flexDirection = "column";
+
+  todayContainer.style.width = "80%";
+  todayContainer.style.height = "80%";
+
+  // First CHild
+  const firstChild = todayContainer.firstElementChild;
+  if (firstChild) {
+    firstChild.style.backgroundColor = "#b0a8b9";
+    firstChild.style.padding = "10px";
+    firstChild.style.fontSize = "40px";
+  }
+}
 export function footerStyling(footer) {
   footer.style.display = "flex";
   footer.style.flexDirection = "row";
@@ -132,13 +148,13 @@ export function footerStyling(footer) {
 }
 // Hover over effect to show that a user can click on the items in the menu pannel
 export function ClickStyling(div) {
-  div.addEventListener('mouseenter', function () {
+  div.addEventListener("mouseenter", function () {
     this.style.cursor = "pointer";
     this.style.backgroundColor = "darkgrey"; // Slightly darker to indicate hover
     this.style.boxShadow = "0 0 10px #000";
   });
 
-  div.addEventListener('mouseleave', function () {
+  div.addEventListener("mouseleave", function () {
     // Revert to initial styles or remove specific hover styles
     this.style.backgroundColor = "grey";
     this.style.boxShadow = "none"; // Remove the shadow effect
