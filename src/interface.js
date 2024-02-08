@@ -1,176 +1,116 @@
-import {
-  NewTaskCreatorPrompt,
-  ChangeInboxVisibility,
-  taskCreatorDivVisibility,
-  ChangeTodayVisibility,
-} from "./clickActions.js";
+import { clickActions } from "./clickActions.js";
 import { addClickListenerToDiv } from "./listeners.js";
-import { isToday, parseJSON } from "date-fns";
-import {
-  loadFontAwesome,
-  loadGoogleFonts,
-  globalStyling,
-  mainDivContainerStyling,
-  headerStyling,
-  headerTextStyling,
-  contentContainerStyling,
-  menuPanelStyling,
-  menuPanelDivContainerStyling,
-  menuPanelDivCreationProjectsTitleStyling,
-  inboxStyling,
-  inboxContainerStyling,
-  todayContainerStyling,
-  ClickStyling,
-  inboxItemStyling,
-  taskCreatorDivStyling,
-  footerStyling,
-  newTaskStyling,
-} from "./stylingFunctions.js";
-
-// export function divOrganiser() {
-//   // clearLocalStorage();
-//   populateDummyLocalStorage(10);
-//   const localStorageItems = parsedStorage();
-//   const todaysTasks = getTodaysTasks(localStorageItems);
-//   console.log("Object containing todays tasks:", todaysTasks);
-//   loadFontAwesome();
-//   loadGoogleFonts();
-//   globalStyling();
-//   const mainDiv = document.body.appendChild(mainDivCreation());
-//   mainDivContainerStyling(mainDiv);
-//   const header = mainDiv.appendChild(headerCreation());
-//   headerStyling(header);
-//   header.appendChild(createDivWithText("DO IT!", "headerText"));
-//   headerTextStyling();
-//   const contentContainer = mainDiv.appendChild(contentContainerCreation());
-//   contentContainerStyling(contentContainer);
-//   const menuPanel = contentContainer.appendChild(menuPanelCreation());
-//   menuPanelStyling(menuPanel);
-//   menuPanelDivCreation(menuPanel);
-
-//   menuPanelDivContainerStyling();
-//   const projectTitle = createProjectsTitleTextDiv();
-//   menuPanel.appendChild(projectTitle);
-//   menuPanelDivCreationProjects(menuPanel);
-//   menuPanelDivCreationProjectsTitleStyling();
-
-//   //Inbox
-//   const inbox = contentContainer.appendChild(inboxCreation());
-//   menuTabFunction();
-//   inboxStyling(inbox);
-//   const inboxContainer = inboxContainerCreation(inbox);
-//   inboxContainerStyling(inboxContainer);
-//   const inboxItem = createDivWithText(
-//     "Add Task",
-//     "addTaskPrompt",
-//     "fas fa-plus-circle"
-//   );
-//   ClickStyling(inboxItem);
-//   addClickListenerToDiv(inboxItem, NewTaskCreatorPrompt);
-//   inboxContainer.appendChild(inboxItem);
-//   inboxItemStyling(inboxItem);
-
-//   // Task Creator
-//   const taskCreatordiv = createDivWithText("", "taskCreatorDiv");
-//   inbox.appendChild(taskCreatordiv);
-//   taskCreatorDivStyling();
-//   taskCreatorDivPopulate(taskCreatordiv);
-
-//   // Today
-//   const todayDiv = contentContainer.appendChild(todayCreation());
-//   const todayContainer = todayContainerCreation(todayDiv);
-//   inbox.appendChild(todayContainer);
-//   todayContainerStyling(todayContainer);
-//   const todayItem = createDivWithText(
-//     "Add Task",
-//     "addTaskPrompt",
-//     "fas fa-plus-circle"
-//   );
-//   ClickStyling(todayItem);
-//   addClickListenerToDiv(todayItem, NewTaskCreatorPrompt);
-//   todayContainer.appendChild(todayItem);
-//   inboxItemStyling(todayItem);
-
-//   // Footer
-//   const footer = mainDiv.appendChild(footerCreation());
-//   footerStyling(footer);
-// }
+import { stylingFunctions } from "./stylingFunctions.js";
+import { storageFunctions } from "./storageFunctions.js";
 
 export function divOrganiser() {
-  populateDummyLocalStorage(10);
-  const localStorageItems = parsedStorage();
-  console.log("Object containing todays tasks:", getTodaysTasks(localStorageItems));
+  storageFunctions.populateDummyLocalStorage(10);
+  const localStorageItems = storageFunctions.parsedStorage();
+  console.log(
+    "Object containing todays tasks:",
+    storageFunctions.getTodaysTasks(localStorageItems)
+  );
 
-  loadFontAwesome();
-  loadGoogleFonts();
-  globalStyling();
+  stylingFunctions.loadFontAwesome();
+  stylingFunctions.loadGoogleFonts();
+  stylingFunctions.globalStyling();
 
   const mainDiv = document.body.appendChild(mainDivCreation());
-  mainDivContainerStyling(mainDiv);
+  stylingFunctions.mainDivContainerStyling(mainDiv);
 
   setupHeader(mainDiv);
   const contentContainer = setupContentContainer(mainDiv);
   setupMenuPanel(contentContainer);
-  setupInbox(contentContainer);
+  // Inbox
+  const { inbox, inboxContainer } = setupInbox(contentContainer);
+  setupTaskCreatorDiv(inbox);
+  // Today
+  setupTodaySection(inbox);
+
   setupFooter(mainDiv);
 }
 
-
 function setupHeader(mainDiv) {
   const header = mainDiv.appendChild(headerCreation());
-  headerStyling(header);
+  stylingFunctions.headerStyling(header);
   header.appendChild(createDivWithText("DO IT!", "headerText"));
-  headerTextStyling();
+  stylingFunctions.headerTextStyling();
 }
 
 function setupContentContainer(mainDiv) {
   const contentContainer = mainDiv.appendChild(contentContainerCreation());
-  contentContainerStyling(contentContainer);
-  return contentContainer; 
+  stylingFunctions.contentContainerStyling(contentContainer);
+  return contentContainer;
 }
 
 function setupMenuPanel(contentContainer) {
   const menuPanel = contentContainer.appendChild(menuPanelCreation());
-  menuPanelStyling(menuPanel);
+  stylingFunctions.menuPanelStyling(menuPanel);
   menuPanelDivCreation(menuPanel);
-  menuPanelDivContainerStyling();
+  stylingFunctions.menuPanelDivContainerStyling();
   menuPanel.appendChild(createProjectsTitleTextDiv());
   menuPanelDivCreationProjects(menuPanel);
-  menuPanelDivCreationProjectsTitleStyling();
+  stylingFunctions.menuPanelDivCreationProjectsTitleStyling();
 }
 
 function setupInbox(contentContainer) {
   const inbox = contentContainer.appendChild(inboxCreation());
-  menuTabFunction();
-  inboxStyling(inbox);
+  stylingFunctions.inboxStyling(inbox);
   const inboxContainer = inboxContainerCreation(inbox);
-  inboxContainerStyling(inboxContainer);
+  stylingFunctions.inboxContainerStyling(inboxContainer);
   setupInboxItem(inboxContainer);
+  return { inbox, inboxContainer };
+}
+
+function setupTaskCreatorDiv(inbox) {
+  const taskCreatorDiv = createDivWithText("", "taskCreatorDiv");
+  taskCreatorDivPopulate(taskCreatorDiv);
+  inbox.appendChild(taskCreatorDiv);
+  stylingFunctions.taskCreatorDivStyling();
+  return taskCreatorDiv;
 }
 
 function setupInboxItem(inboxContainer) {
-  const inboxItem = createDivWithText("Add Task", "addTaskPrompt", "fas fa-plus-circle");
-  ClickStyling(inboxItem);
+  const inboxItem = createDivWithText(
+    "Add Task",
+    "addTaskPrompt",
+    "fas fa-plus-circle"
+  );
+  stylingFunctions.ClickStyling(inboxItem);
   // Learned that passing a reference by removing parantheses means "heres the function to call when the event happens" adding parantheses would call the function immediatley.
-  addClickListenerToDiv(inboxItem, NewTaskCreatorPrompt);
+  addClickListenerToDiv(inboxItem, clickActions.NewTaskCreatorPrompt);
   inboxContainer.appendChild(inboxItem);
-  inboxItemStyling(inboxItem);
+  stylingFunctions.inboxItemStyling(inboxItem);
+}
+
+function setupTodaySection(inbox) {
+  const today = createDivWithText("", "today");
+  const todayContainerDiv = createDivWithText("", "todayContainerDiv");
+  const todayContainerDivTitle = createDivWithText(
+    "Today",
+    "todayContainerDivTitle"
+  );
+
+  todayContainerDiv.appendChild(todayContainerDivTitle);
+  today.appendChild(todayContainerDiv);
+  inbox.appendChild(today);
+
+  stylingFunctions.todayContainerStyling(today);
+
+  return todayContainerDiv;
+}
+
+function footerCreation() {
+  const footer = document.createElement("footer");
+  footer.id = "footer";
+  return footer;
 }
 
 function setupFooter(mainDiv) {
   const footer = mainDiv.appendChild(footerCreation());
-  footerStyling(footer);
+  stylingFunctions.footerStyling(footer);
 }
 
-
-
-
-
-
-
-
-
-// -----------------------------------
 function mainDivCreation() {
   const mainDiv = document.getElementById("content");
   mainDiv.id = "mainDiv";
@@ -228,179 +168,22 @@ function menuPanelDivCreation(menuPanel) {
   menuPanelDivContainer.setAttribute("id", "menuPanelDivContainer");
 
   const inboxDiv = createDivWithText("Inbox", "inboxDiv", "fas fa-inbox");
-  ClickStyling(inboxDiv);
+  stylingFunctions.ClickStyling(inboxDiv);
   const todayDiv = createDivWithText(
     "Today",
     "todayDiv",
     "fas fa-calendar-day"
   );
-  ClickStyling(todayDiv);
+  stylingFunctions.ClickStyling(todayDiv);
   const thisWeekDiv = createDivWithText(
     "This Week",
     "thisWeekDiv",
     "fas fa-calendar-week"
   );
-  ClickStyling(thisWeekDiv);
+  stylingFunctions.ClickStyling(thisWeekDiv);
 
   menuPanelDivContainer.append(inboxDiv, todayDiv, thisWeekDiv);
   menuPanel.appendChild(menuPanelDivContainer);
-}
-
-// Function to store the user input from creating a new task locally.
-function storeLocally(taskName, dueDate, description, priority, notes) {
-  // Counter because there will be multiple tasks
-  let counter = 0;
-
-  //Checks to see if there is a number that matches a taskName. If there is, it retrives the current taskname and number and converts the number to an int
-  // using parseint. It then increments the counter by 1. The new variable is then assigned to counter variable above.
-  if (localStorage.getItem(taskName + "number")) {
-    counter = parseInt(localStorage.getItem(taskName + "number")) + 1;
-  }
-
-  // Stores this to localStorage after turning it into a JSON string.
-  localStorage.setItem(
-    taskName,
-    JSON.stringify({
-      title: taskName,
-      dueDate: dueDate,
-      description: description,
-      priority: priority,
-      notes: notes,
-      number: counter,
-    })
-  );
-
-  // get the items to store
-  const inputElements = {
-    title: document.getElementById("title"),
-    dueDate: document.getElementById("dueDate"),
-    description: document.getElementById("description"),
-    priority: document.getElementById("priority"),
-    notes: document.getElementById("notes"),
-  };
-}
-
-// Clear localStorage
-function clearLocalStorage() {
-  if (localStorage) {
-    localStorage.clear();
-  }
-}
-
-// Function to populate the localStorage dummy data objects
-function populateDummyLocalStorage(numberOfObjects) {
-  clearLocalStorage();
-  let currentCount = localStorage.length;
-
-  let dueDate = new Date(2024, 1, 7);
-
-  let dueDateISO = dueDate.toISOString();
-
-  for (let i = 0; i < numberOfObjects; i++) {
-    const key = `task-${currentCount + i}`;
-
-    const value = JSON.stringify({
-      title: `taskName${currentCount + i}`,
-      dueDate: dueDateISO,
-      description: "description",
-      priority: "1",
-      notes: "notes",
-      number: currentCount + i,
-    });
-    localStorage.setItem(key, value);
-  }
-}
-
-function parsedStorage() {
-  // Object to store all parsed key/value pairs from localStorage.
-  let localStorageItems = {};
-  console.log("parsedStorage is called");
-
-  // For loop to get the key-value pairs and parse them
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    const value = localStorage.getItem(key);
-
-    //Parse the stringyfied json
-    const parsedValue = JSON.parse(value);
-
-    // Checking the format of the date
-    console.log(parsedValue.dueDate);
-    console.log("Type of dueDate:", typeof parsedValue.dueDate);
-    // Add the parsed object to the localstorageitems
-    localStorageItems[key] = parsedValue;
-  }
-  console.log("parsedStorage successfully run:", localStorageItems);
-  console.log("localStorageItems Type:", typeof localStorageItems);
-  return localStorageItems;
-}
-
-//   // log the priority of "task-0"
-//   let priorityOfTask0 = localStorageItems["task-0"].priority;
-//   console.log(priorityOfTask0);
-// }
-
-function getTodaysTasks(localStorageItems) {
-  console.log("getTodaysTasks is called");
-  console.log("LocalStorageItems is:", localStorageItems);
-
-  let tasksDueToday = {};
-
-  for (let key in localStorageItems) {
-    if (localStorageItems.hasOwnProperty(key)) {
-      let taskDate = parseJSON(localStorageItems[key].dueDate);
-      console.log(taskDate);
-      let result = isToday(taskDate);
-      console.log(`Is ${key} due today:`, result);
-
-      if (result) {
-        console.log(`${key} is due today`);
-        tasksDueToday[key] = localStorageItems[key];
-      } else {
-        console.log(`${key} is not due today`);
-      }
-    }
-  }
-  return tasksDueToday;
-}
-
-export function displayTodaysTasks() {
-  console.log("displayTodaysTasks is called")
-  
-  const tasksDueToday = getTodaysTasks(parsedStorage()); 
-
-  const todayContainerDiv = document.getElementById("todayContainerDiv");
-  // Clear any tasks still there if it's called multiple times.
-  todayContainerDiv.innerHTML = '';
-
-  // Iterate over tasksDueToday and create new elements
-  Object.keys(tasksDueToday).forEach((key) => {
-    const task = tasksDueToday[key];
-    // Using the TaskDiv constructor to add tasks to todayContainerDiv
-    new TaskDiv("todayContainerDiv", task.title, task.description, task.dueDate, task.priority);
-  });
-}
-
-
-// TODO function to add clicklisteners to divs in the menu to allow for tab navigation
-function menuTabFunction() {
-  addClickListenerToDiv(inboxDiv, showInbox);
-  addClickListenerToDiv(todayDiv, showToday);
-  // addClickListenerToDiv(thisWeekDiv,showWeek)
-
-  function showInbox() {
-    ChangeInboxVisibility(true);
-    taskCreatorDivVisibility(false);
-    ChangeTodayVisibility(false);
-  }
-  function showToday() {
-    ChangeInboxVisibility(false);
-    taskCreatorDivVisibility(false);
-    ChangeTodayVisibility(true);
-  }
-  // function showWeek() {
-
-  // }
 }
 
 function menuPanelDivCreationProjects(menuPanel) {
@@ -419,7 +202,7 @@ function projectsDivsCreation(menuPanelDivContainerProjects) {
     "addProjectDiv",
     "fas fa-plus-circle"
   );
-  ClickStyling(addProject);
+  stylingFunctions.ClickStyling(addProject);
   menuPanelDivContainerProjects.append(addProject);
 }
 
@@ -449,29 +232,6 @@ function inboxCreation() {
   return inbox;
 }
 
-function todayCreation() {
-  const today = createDivWithText("", "today");
-  return today;
-}
-
-function todayContainerCreation(today) {
-  const todayContainerDiv = createDivWithText("", "todayContainerDiv");
-  const todayContainerDivTitle = createDivWithText(
-    "Today",
-    "todayContainerTitle",
-    ""
-  );
-  todayContainerDiv.append(todayContainerDivTitle);
-  today.appendChild(todayContainerDiv);
-  return todayContainerDiv;
-}
-
-function footerCreation() {
-  const footer = document.createElement("footer");
-  footer.id = "footer";
-  return footer;
-}
-
 function taskCreatorDivPopulate(taskCreatorDiv) {
   // Create the form element
   const form = document.createElement("form");
@@ -481,11 +241,11 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   form.style.gap = "10px";
 
   // Creates a div with the 'close' icon and adds it ot the contianer taskcreator
-  // Something I learnt here, the reason I had to remove the closing () at the end of NewTaskCreatorPrompt is:
+  // Something I learnt here, the reason I had to remove the closing () at the end of clickActions.NewTaskCreatorPrompt is:
   // When you want to add an event listener and you need to pass a function as a callback, you should pass the function reference itself, not the result of its execution.
   addClickListenerToDiv(
     taskCreatorDiv.appendChild(createCloseIconDiv()),
-    NewTaskCreatorPrompt
+    clickActions.NewTaskCreatorPrompt
   );
 
   // Append fields to the form
@@ -526,12 +286,18 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
     console.log("TESTING>>>Task created: " + taskName);
     console.log("Form submitted");
     // Store inputed data locally.
-    storeLocally(taskName, dueDate, description, priority, notes);
+    storageFunctions.storeLocally(
+      taskName,
+      dueDate,
+      description,
+      priority,
+      notes
+    );
     console.log("Form Data stored locally");
     // parseDate();
     // console.log("parseDate() run");
     //Should change the name of this function. It's misleading. Here were toggling visibility to show the inbox.
-    NewTaskCreatorPrompt(event);
+    clickActions.NewTaskCreatorPrompt(event);
   });
 
   // //Storage
@@ -600,28 +366,18 @@ export class TaskDiv {
       taskDiv.appendChild(priorityText);
     }
     // Style the new task div
-    newTaskStyling(taskDiv);
+    stylingFunctions.newTaskStyling(taskDiv);
     //Append the div to the parent
     this.parentElement.appendChild(taskDiv);
   }
 }
 
-
-
-
 // Self explanatory function. Used in the constructor for new tasks to show checkbox infront of task name
 function createCheckbox() {
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
-  checkboxStyling(checkbox);
+  stylingFunctions.checkboxStyling(checkbox);
   return checkbox;
-}
-
-function checkboxStyling(checkBox) {
-  checkBox.style.accentColor = "#845ec2";
-  checkBox.style.cursor = "pointer";
-  checkBox.style.transform = "scale(1.5)";
-  checkBox.style.marginRight = "10px";
 }
 
 // Helper function to create input fields with labels for the form
