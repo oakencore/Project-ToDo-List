@@ -76,7 +76,7 @@ class ClickActions {
   }
 
   ChangeInboxVisibility(show) {
-    const inboxContainer = document.getElementById("InboxContainerDiv");
+    const inboxContainer = document.getElementById("inboxContainerDiv");
     if (inboxContainer) {
       inboxContainer.style.display = show ? "flex" : "none";
     }

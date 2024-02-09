@@ -1,5 +1,6 @@
-import { TaskDiv } from "./interface";
+import { TaskDiv } from "./TaskDiv";
 import { parseJSON, isToday } from "date-fns";
+import { stylingFunctions } from "./stylingFunctions";
 
 const storageFunctions = {
   storeLocally(taskName, dueDate, description, priority, notes) {
@@ -7,14 +8,17 @@ const storageFunctions = {
     if (localStorage.getItem(taskName + "number")) {
       counter = parseInt(localStorage.getItem(taskName + "number")) + 1;
     }
-    localStorage.setItem(taskName, JSON.stringify({
-      title: taskName,
-      dueDate: dueDate,
-      description: description,
-      priority: priority,
-      notes: notes,
-      number: counter,
-    }));
+    localStorage.setItem(
+      taskName,
+      JSON.stringify({
+        title: taskName,
+        dueDate: dueDate,
+        description: description,
+        priority: priority,
+        notes: notes,
+        number: counter,
+      })
+    );
   },
 
   clearLocalStorage() {
@@ -26,8 +30,9 @@ const storageFunctions = {
   populateDummyLocalStorage(numberOfObjects) {
     this.clearLocalStorage();
     let currentCount = localStorage.length;
-    let dueDate = new Date(2024, 1, 7);
+    let dueDate = new Date(2024, 1, 9);
     let dueDateISO = dueDate.toISOString();
+    console.log("Duedate ISO:",dueDateISO)
     for (let i = 0; i < numberOfObjects; i++) {
       const key = `task-${currentCount + i}`;
       const value = JSON.stringify({
@@ -69,12 +74,18 @@ const storageFunctions = {
   displayTodaysTasks() {
     const tasksDueToday = this.getTodaysTasks(this.parsedStorage());
     const todayContainerDiv = document.getElementById("todayContainerDiv");
-    todayContainerDiv.innerHTML = "";
+    // todayContainerDiv.innerHTML = "";
     Object.keys(tasksDueToday).forEach((key) => {
       const task = tasksDueToday[key];
-      new TaskDiv("todayContainerDiv", task.title, task.description, task.dueDate, task.priority);
+      new TaskDiv(
+        task.title,
+        task.description,
+        task.dueDate,
+        task.priority,
+        "todayContainerDiv"
+      );
     });
-  }
+  },
 };
 
 export { storageFunctions };

@@ -1,4 +1,4 @@
-import { TaskDiv } from "./interface";
+import { TaskDiv } from "./TaskDiv";
 // Styling
 // Added all styling functions to an object so I can import it with one line.
 const stylingFunctions = {
@@ -128,6 +128,11 @@ const stylingFunctions = {
       firstChild.style.padding = "10px";
       firstChild.style.fontSize = "40px";
     }
+  },
+  todayItemStyling(todayItem) {
+    todayItem.style.backgroundColor = "rgba(132, 94, 194, 0.5)";
+    todayItem.style.padding = "10px";
+    return todayItem;
   },
   footerStyling(footer) {
     footer.style.display = "flex";
