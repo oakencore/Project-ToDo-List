@@ -117,8 +117,18 @@ const stylingFunctions = {
       taskCreatorDiv.style.position = "relative";
     }
   },
+  todayStyling(today) {
+    today.style.flexGrow = 1;
+    today.style.display = "none";
+    today.style.justifyContent = "center";
+    today.style.alignItems = "center";
+    today.style.backgroundColor = "#b0a8b9";
+    today.style.width = "70%";
+    today.style.height = "auto";
+    today.style.color = "#ff8066";
+  },
   todayContainerStyling(todayContainer) {
-    todayContainer.style.display = "none";
+    todayContainer.style.display = "flex";
     todayContainer.style.flexDirection = "column";
     todayContainer.style.width = "80%";
     todayContainer.style.height = "80%";
@@ -130,9 +140,56 @@ const stylingFunctions = {
     }
   },
   todayItemStyling(todayItem) {
-    todayItem.style.backgroundColor = "rgba(132, 94, 194, 0.5)";
+    // Two colours to switch between
+    const colour1 = "#6b6a66";
+    const colour2 = "#8a8986";
+    // lastcolour is using a 'custom atrrtibute' to track the last colour
+    const lastItem = todayItem.previousElementSibling;
+    const lastColour = lastItem ? lastItem.getAttribute("data-lastColour") : "";
+    // Choose next colour based on last item's custom attribute
+    const nextColour = lastColour === colour1 ? colour2 : colour1;
+    todayItem.style.backgroundColor = nextColour;
     todayItem.style.padding = "10px";
+    // Update the current items custom attribute to show the colour applied
+    todayItem.setAttribute("data-lastColour", nextColour);
     return todayItem;
+  },
+  weekStyling(week) {
+    week.style.flexGrow = 1;
+    week.style.display = "none";
+    week.style.justifyContent = "center";
+    week.style.alignItems = "center";
+    week.style.backgroundColor = "#b0a8b9";
+    week.style.width = "70%";
+    week.style.height = "auto";
+    week.style.color = "#ff8066";
+  },
+  weekContainerStyling(weekContainer) {
+    weekContainer.style.display = "flex";
+    weekContainer.style.flexDirection = "column";
+    weekContainer.style.width = "80%";
+    weekContainer.style.height = "80%";
+    const firstChild = weekContainer.firstElementChild;
+    if (firstChild) {
+      firstChild.style.backgroundColor = "#b0a8b9";
+      firstChild.style.padding = "10px";
+      firstChild.style.fontSize = "40px";
+    }
+  },
+  weekItemStyling(weekItem) {
+    // Two colours to switch between
+    const colour1 = "#6b6a66";
+    const colour2 = "#8a8986";
+    // lastcolour is using a 'custom atrrtibute' to track the last colour
+    const lastItem = weekItem.previousElementSibling;
+    const lastColour = lastItem ? lastItem.getAttribute("data-lastColour") : "";
+    // Choose next colour based on last item's custom attribute
+    const nextColour = lastColour === colour1 ? colour2 : colour1;
+    weekItem.style.backgroundColor = nextColour;
+    weekItem.style.padding = "10px";
+    // Update the current items custom attribute to show the colour applied
+    weekItem.setAttribute("data-lastColour", nextColour);
+    return weekItem;
   },
   footerStyling(footer) {
     footer.style.display = "flex";

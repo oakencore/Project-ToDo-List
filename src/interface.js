@@ -6,7 +6,7 @@ import { formFunctions } from "./formFunctions.js";
 import { TaskDiv } from "./TaskDiv.js";
 
 export function divOrganiser() {
-  storageFunctions.populateDummyLocalStorage(5);
+  storageFunctions.populateDummyLocalStorage(2);
   const localStorageItems = storageFunctions.parsedStorage();
   console.log(
     "Object containing todays tasks:",
@@ -29,10 +29,14 @@ export function divOrganiser() {
 
   // Today
   setupTodaySection(inbox);
+  // Week
+  setupWeekSection(inbox);
   // Load Tasks from Local Storage
   loadTasksFromLocalStorage();
   // Display todays tasks
   storageFunctions.displayTodaysTasks();
+  // Display week tasks
+  storageFunctions.displayWeekTasks();
 
   setupFooter(mainDiv);
 }
@@ -137,7 +141,7 @@ function setupInbox(contentContainer) {
   console.log("Inbox created:", inbox);
   stylingFunctions.inboxStyling(inbox);
 
-  // Create and style the inbox container
+  // Create inbox container
   const inboxContainer = createDivWithText("", "inboxContainerDiv");
   console.log("Inbox container created:", inboxContainer);
 
@@ -210,19 +214,45 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
 // ---------------------------
 function setupTodaySection(inbox) {
   const today = createDivWithText("", "today");
+  stylingFunctions.todayStyling(today);
+
   const todayContainerDiv = createDivWithText("", "todayContainerDiv");
+
   const todayContainerDivTitle = createDivWithText(
     "Today",
     "todayContainerDivTitle"
   );
 
   todayContainerDiv.appendChild(todayContainerDivTitle);
+  stylingFunctions.todayContainerStyling(todayContainerDiv);
   today.appendChild(todayContainerDiv);
+
   inbox.appendChild(today);
 
-  stylingFunctions.todayContainerStyling(today);
-
   return todayContainerDiv;
+}
+
+// ---------------------------
+// Week Section Setup
+// ---------------------------
+function setupWeekSection(inbox) {
+  const week = createDivWithText("", "week");
+  stylingFunctions.weekStyling(week);
+
+  const weekContainerDiv = createDivWithText("", "weekContainerDiv");
+
+  const weekContainerDivTitle = createDivWithText(
+    "Week",
+    "weekContainerDivTitle"
+  );
+
+  weekContainerDiv.appendChild(weekContainerDivTitle);
+  stylingFunctions.weekContainerStyling(weekContainerDiv);
+  week.appendChild(weekContainerDiv);
+
+  inbox.appendChild(week);
+
+  return weekContainerDiv;
 }
 
 // ---------------------------
