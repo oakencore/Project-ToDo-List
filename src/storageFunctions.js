@@ -5,6 +5,7 @@ import {
   isWithinInterval,
   addDays,
   startOfDay,
+  formatISO,
 } from "date-fns";
 import { stylingFunctions } from "./stylingFunctions";
 import { displayProjectTasks } from "./interface";
@@ -36,14 +37,19 @@ const storageFunctions = {
     }
   },
 
+  completeTaskAndRemove(taskId) {
+    localStorage.removeItem(taskId);
+    console.log(`Task with ID ${taskId} has been removed from storage.`);
+  },
+
   populateDummyLocalStorage(numberOfObjects) {
     this.clearLocalStorage();
     let currentCount = localStorage.length;
 
     for (let i = 0; i < numberOfObjects; i++) {
+      const taskID = `Task-${i+1}`;
       // Manual date selection
       // JavaScript's Date object indexes months starting from 0
-      let dueDate = new Date(2024, 1, 9);
       // Random date
       // let dueDate = new Date(
       //   new Date().getFullYear() + Math.floor(Math.random() * 3),
@@ -51,28 +57,33 @@ const storageFunctions = {
       //   Math.floor(Math.random() * 28) + 1
       // );
       // getFullyear gets the current year. Random * 3 adds a random number between 0 and 2 and adds it to the current year. Month random 0-11, Day random 1-28
-      let dueDateISO = dueDate.toISOString();
-      console.log(`Due date for task ${i}:`, dueDateISO);
-      const key = `task-${currentCount + i}`;
-      const value = JSON.stringify({
+      // let dueDateISO = dueDate.toISOString();
+      let dueDate = formatISO(new Date(2024, 1, 9),{representation:'date'})
+      // console.log(`Due date for task ${i}:`, dueDate);
+      const value = {
+        taskID: `task-${i+1}`,
         title: `taskName${currentCount + i}`,
-        dueDate: dueDateISO,
-        description: "description",
+        dueDate: dueDate,
+        description: "the description",
         priority: "1",
         notes: "notes",
-        project: "project",
+        project: "example project",
         number: currentCount + i,
-      });
-      localStorage.setItem(key, value);
+      };
+      localStorage.setItem(taskID, JSON.stringify(value));
     }
   },
 
+  // parse local storage and assign a unique taskID to each task within it
   parsedStorage() {
     let localStorageItems = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       const value = localStorage.getItem(key);
       const parsedValue = JSON.parse(value);
+      if (parsedValue && typeof parsedValue === "object") {
+        parsedValue.taskId = key;
+      }
       localStorageItems[key] = parsedValue;
     }
     return localStorageItems;
@@ -182,10 +193,33 @@ const storageFunctions = {
         projectDiv.classList.add("project-name");
         stylingFunctions.projectNameStyling(projectDiv);
         projectsContainerDiv.appendChild(projectDiv);
-        projectDiv.addEventListener('click', () => clickActions.showProjectTasks(item.project));
-
+        projectDiv.addEventListener("click", () =>
+          clickActions.showProjectTasks(item.project)
+        );
       }
     });
+  },
+
+  getTaskDetails(taskId) {
+    console.log("getTaskDetails invoked.");
+    const localStorageItems = this.parsedStorage();
+    console.log("Tasks in Storage:", localStorageItems);
+    if (localStorageItems.hasOwnProperty(taskId)) {
+      const taskDetails = localStorageItems[taskId];
+      console.log("getTaskDetails returns:", taskDetails);
+      return taskDetails;
+    } else {
+      console.log("There was no taskID");
+      return null;
+    }
+  },
+
+  updateTask(taskId, newDetails) {
+    let tasks = JSON.parse(localStorage.getItem("tasks") || "{}");
+    if (tasks[taskId]) {
+      tasks[taskId] = { ...tasks[taskId], ...newDetails };
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
   },
 };
 

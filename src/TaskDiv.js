@@ -1,7 +1,8 @@
-// Import necessary functions and styles
 import { stylingFunctions } from "./stylingFunctions.js";
 import { createDivWithText } from "./interface.js";
 import { formFunctions } from "./formFunctions.js";
+import { storageFunctions } from "./storageFunctions.js";
+import { clickActions } from "./clickActions.js";
 
 export function createTaskDetails(taskDiv, details) {
   console.log("Creating task details...", details);
@@ -46,6 +47,22 @@ export class TaskDiv {
     // adding task-item class name to see if I can give new tasks a class to apply styling to.
     taskDiv.classList.add("task-item");
     const checkBox = formFunctions.createCheckbox();
+    checkBox.dataset.taskId = this.id;
+
+    clickActions.setupTaskClickListeners();
+
+    checkBox.addEventListener('change', function() {
+      if (this.checked) {
+        const taskId = this.dataset.taskId;
+        // Remove task from local storage
+        storageFunctions.completeTaskAndRemove(taskId); 
+        // Remove task from DOM
+        document.getElementById(taskId)?.remove();
+      }
+    });
+
+
+
     taskDiv.insertBefore(checkBox, taskDiv.firstChild);
     createTaskDetails(taskDiv, [
       { detail: this.description, prefix: " Description: " },
@@ -100,4 +117,5 @@ export function createAndAppendTask({
   stylingFunctions.newTaskStyling(taskDiv);
   console.log(`Appending task div to parentElementId: ${parentElementId}`);
   parentElement.appendChild(taskDiv);
+  clickActions.setupTaskClickListeners();
 }

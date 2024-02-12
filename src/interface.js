@@ -6,12 +6,12 @@ import { formFunctions } from "./formFunctions.js";
 import { TaskDiv } from "./TaskDiv.js";
 
 export function divOrganiser() {
-  storageFunctions.populateDummyLocalStorage(2);
+  storageFunctions.populateDummyLocalStorage(4);
   const localStorageItems = storageFunctions.parsedStorage();
-  console.log(
-    "Object containing todays tasks:",
-    storageFunctions.getTodaysTasks(localStorageItems)
-  );
+  // console.log(
+  //   "Object containing todays tasks:",
+  //   storageFunctions.getTodaysTasks(localStorageItems)
+  // );
 
   stylingFunctions.loadFontAwesome();
   stylingFunctions.loadGoogleFonts();
@@ -25,7 +25,10 @@ export function divOrganiser() {
   const menuPanel = setupMenuPanel(contentContainer);
   // Inbox
   const { inbox, inboxContainer } = setupInbox(contentContainer);
+  // Task Creator
   setupTaskCreatorDiv(inbox);
+  // Task Editor
+  setupTaskEditorDiv(inbox);
 
   // Today
   setupTodaySection(inbox);
@@ -56,7 +59,7 @@ function mainDivCreation() {
     return;
   }
   mainDiv.id = "mainDiv";
-  console.log("Main div created:", mainDiv);
+  // console.log("Main div created:", mainDiv);
   return mainDiv;
 }
 
@@ -330,6 +333,16 @@ function setupProjectTasksSection(inbox, projectName) {
 }
 
 // ---------------------------
+// Task Editor
+// ---------------------------
+function setupTaskEditorDiv(inbox) {
+  const taskEditorDiv = createDivWithText("", "taskEditorDiv");
+  inbox.appendChild(taskEditorDiv);
+  stylingFunctions.taskEditorDivStyling()
+  return taskEditorDiv;
+}
+
+// ---------------------------
 // Footer Setup
 // ---------------------------
 function footerCreation() {
@@ -399,3 +412,11 @@ function loadTasksFromLocalStorage() {
     );
   });
 }
+
+function refreshTasksDisplay() {
+  storageFunctions.displayTodaysTasks();
+  storageFunctions.displayWeekTasks();
+  storageFunctions.displayProjectNames();
+  clickActions.setupTaskClickListeners();
+}
+

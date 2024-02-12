@@ -18,6 +18,9 @@ class ClickActions {
     this.showWeek = this.showWeek.bind(this);
     this.showProjectTasks = this.showProjectTasks.bind(this);
     this.setupProjectTabListeners = this.setupProjectTabListeners.bind(this);
+    this.setupTaskClickListeners = this.setupTaskClickListeners.bind(this);
+    this.populateEditFormWithTaskDetails =
+      this.populateEditFormWithTaskDetails.bind(this);
   }
 
   // Methods for menu tab clicks
@@ -42,8 +45,18 @@ class ClickActions {
     const projectDivs = document.querySelectorAll(".project-name");
     projectDivs.forEach((div) => {
       div.addEventListener("click", (e) => {
-        const projectName = e.target.textContent; 
+        const projectName = e.target.textContent;
         this.handleMainProjectDivClick(projectName);
+      });
+    });
+  }
+
+  // For when a task is clicked so a user can edit it
+  setupTaskClickListeners() {
+    document.querySelectorAll(".task-item").forEach((taskItem) => {
+      taskItem.addEventListener("click", (e) => {
+        const taskId = taskItem.id;
+        this.populateEditFormWithTaskDetails(taskId);
       });
     });
   }
@@ -90,7 +103,7 @@ class ClickActions {
     const projectsMainContainer = document.getElementById(
       "projectsMainContainer"
     );
-    this.clearProjectTasksExceptTitle('projectsMainContainer');
+    this.clearProjectTasksExceptTitle("projectsMainContainer");
     const allTasks = storageFunctions.parsedStorage();
     // Get tasks linked to project name
     const projectTasks = Object.values(allTasks).filter(
@@ -114,13 +127,12 @@ class ClickActions {
   clearProjectTasksExceptTitle(containerDivId) {
     const container = document.getElementById(containerDivId);
     const children = Array.from(container.children);
-  
+
     //Remove children but not title
     for (let i = children.length - 1; i > 0; i--) {
       container.removeChild(children[i]);
+    }
   }
-  }
-  
 
   NewTaskCreatorPrompt(event) {
     const clickedElement = event.target;
@@ -238,6 +250,47 @@ class ClickActions {
       this.ChangeProjectsMainDivVisibility(true);
     } catch (error) {
       console.error("Error handling MainProject Div click:", error);
+    }
+  }
+  handleTaskEditClick(taskId) {
+    console.log(`Editing task: ${taskId}`);
+    // Get task details
+    const taskDetails = storageFunctions.getTaskDetails(taskId);
+    if (taskDetails) {
+      this.populateTaskEditorForm(taskDetails);
+    }
+  }
+
+  populateEditFormWithTaskDetails(taskId) {
+    console.log("populateEditForm is called");
+    const taskDetails = storageFunctions.getTaskDetails(taskId);
+
+    if (taskDetails) {
+      document.getElementById("title").value = taskDetails.title || "";
+      document.getElementById("description").value =
+        taskDetails.description || "";
+      document.getElementById("dueDate").value = taskDetails.dueDate || "";
+
+      let priorityField = document.getElementById("priority");
+      if (priorityField && taskDetails.priority) {
+        priorityField.value = taskDetails.priority.toString();
+      }
+
+      document.getElementById("notes").value = taskDetails.notes || "";
+      document.getElementById("project").value = taskDetails.project || "";
+
+      let taskIdField = document.getElementById("taskId");
+      if (taskIdField) {
+        taskIdField.value = taskDetails.taskId || "";
+      }
+
+      // Display the form
+      let taskForm = document.getElementById("taskEditorDiv");
+      if (taskForm) {
+        taskForm.style.display = "flex";
+      }
+    } else {
+      console.error("No details found for task ID:", taskId);
     }
   }
 }

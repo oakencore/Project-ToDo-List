@@ -22,8 +22,16 @@ const formFunctions = {
       flexDirection: "column",
       gap: "10px",
     });
+  
+    // Hidden input for task ID
+    const taskIdInput = document.createElement("input");
+    taskIdInput.type = "hidden";
+    taskIdInput.id = "taskId";
+    form.appendChild(taskIdInput);
+  
     return form;
   },
+  
 
   addInputFieldsToForm(form) {
     const fields = [
@@ -66,37 +74,57 @@ const formFunctions = {
   handleFormSubmission(form, taskCreatorDiv) {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
+      // TaskID is hidden and used to edit a task only
+      const taskId = document.getElementById("taskId").value;
       const taskName = document.getElementById("title").value;
       const description = document.getElementById("description").value;
       const dueDate = document.getElementById("dueDate").value;
       const priority = document.getElementById("priority").value;
       const notes = document.getElementById("notes").value;
       const project = document.getElementById("project").value;
-
-      new TaskDiv(
-        taskName,
-        description,
-        dueDate,
-        priority,
-        project,
-        "inboxContainerDiv"
-      );
-
-      // Store tasks in localStorage
-      storageFunctions.storeLocally(
-        taskName,
-        dueDate,
-        description,
-        priority,
-        notes,
-        project
-      );
-      //update the names 
+  
+      if (taskId) {
+        // Update existing task
+        storageFunctions.updateTask(taskId, {
+          title: taskName,
+          description,
+          dueDate,
+          priority,
+          notes,
+          project
+        });
+      } else {
+        // Create new task and store it in localStorage
+        new TaskDiv(
+          taskName,
+          description,
+          dueDate,
+          priority,
+          project,
+          "inboxContainerDiv"
+        );
+        storageFunctions.storeLocally(
+          taskName,
+          dueDate,
+          description,
+          priority,
+          notes,
+          project
+        );
+      }
+  
+      // Update names and tasks display
       storageFunctions.displayProjectNames();
-
-      clickActions.NewTaskCreatorPrompt(event);
+  
+      // Reset form for next use and hide it
+      form.reset();
+      // Reset hidden taskId field
+      document.getElementById("taskId").value = ''; 
+      // hide task creator
+      taskCreatorDiv.style.display = "none"; 
     });
   },
+  
 
   createInputField(
     labelText,

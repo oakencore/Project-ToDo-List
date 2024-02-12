@@ -73,7 +73,7 @@ const stylingFunctions = {
     menuPanelContainerProjects.style.display = "flex";
     menuPanelContainerProjects.style.flexDirection = "row";
     menuPanelContainerProjects.style.fontSize = "30px";
-    menuPanelContainerProjects.style.marginBottom = "15px";
+    menuPanelContainerProjects.style.marginBottom = "1px";
     menuPanelContainerProjects.style.color = "#c34a36";
   },
   inboxStyling(inbox) {
@@ -115,6 +115,20 @@ const stylingFunctions = {
       taskCreatorDiv.style.width = "80%";
       taskCreatorDiv.style.height = "80%";
       taskCreatorDiv.style.position = "relative";
+    }
+  },
+  taskEditorDivStyling() {
+    console.log("taskEditorDivStyling Called!");
+    const taskeditorDiv = document.getElementById("taskEditorDiv");
+    if (taskeditorDiv) {
+      taskeditorDiv.style.display = "none";
+      taskeditorDiv.style.flexDirection = "column";
+      taskeditorDiv.style.justifyContent = "center";
+      taskeditorDiv.style.alignItems = "center";
+      taskeditorDiv.style.backgroundColor = "#845ec2";
+      taskeditorDiv.style.width = "80%";
+      taskeditorDiv.style.height = "80%";
+      taskeditorDiv.style.position = "relative";
     }
   },
   todayStyling(today) {
