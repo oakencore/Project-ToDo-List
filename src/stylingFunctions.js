@@ -191,6 +191,55 @@ const stylingFunctions = {
     weekItem.setAttribute("data-lastColour", nextColour);
     return weekItem;
   },
+  projectStyling(project) {
+    project.style.flexGrow = 1;
+    project.style.display = "flex";
+    project.style.justifyContent = "center";
+    project.style.alignItems = "center";
+    project.style.backgroundColor = "#b0a8b9";
+    project.style.width = "100%";
+    project.style.height = "auto";
+    project.style.color = "#ff8066"; 
+    project.style.padding = "10px 0";
+  },
+  
+  projectContainerStyling(projectContainer) {
+    projectContainer.style.display = "flex";
+    projectContainer.style.flexDirection = "column";
+    projectContainer.style.width = "100%";
+    projectContainer.style.marginTop = "20px"; 
+    projectContainer.style.backgroundColor = "#4b4453"; 
+    projectContainer.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)"; 
+    projectContainer.style.padding = "10px"; 
+    projectContainer.style.overflow = "auto"; 
+  },
+  ProjectsMainContainerDivStyling(projectsMainContainer) {
+    projectsMainContainer.style.display = "none";
+    projectsMainContainer.style.flexDirection = "column";
+    projectsMainContainer.style.width = "80%";
+    projectsMainContainer.style.height = "80%";
+    const firstChild = projectsMainContainer.firstElementChild;
+    if (firstChild) {
+      firstChild.style.backgroundColor = "#b0a8b9";
+      firstChild.style.padding = "10px";
+      firstChild.style.fontSize = "40px";
+    }
+  },
+  
+  projectNameStyling(projectDiv) {
+    projectDiv.style.padding = "10px 20px"; 
+    projectDiv.style.margin = "5px 0"; 
+    projectDiv.style.backgroundColor = "#6b6a66"; 
+    projectDiv.style.color = "#ffffff"; 
+    projectDiv.style.borderRadius = "4px";
+    projectDiv.style.cursor = "pointer";
+    projectDiv.style.transition = "background-color 0.2s"; 
+    projectDiv.style.fontSize = "1rem"; 
+    projectDiv.style.fontWeight = "500"; 
+    projectDiv.addEventListener('mouseenter', () => projectDiv.style.backgroundColor = "#5a5560"); 
+    projectDiv.addEventListener('mouseleave', () => projectDiv.style.backgroundColor = "#6b6a66"); 
+  },
+  
   footerStyling(footer) {
     footer.style.display = "flex";
     footer.style.flexDirection = "row";

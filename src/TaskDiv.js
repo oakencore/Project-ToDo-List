@@ -16,14 +16,23 @@ export function createTaskDetails(taskDiv, details) {
 
 // Manage state of each task
 export class TaskDiv {
-  constructor(taskName, description, dueDate, priority, parentElementId) {
+  constructor(
+    taskName,
+    description,
+    dueDate,
+    priority,
+    project,
+    parentElementId
+  ) {
     console.log(`Creating new TaskDiv: ${taskName}`);
     this.taskName = taskName;
     this.description = description;
     this.dueDate = dueDate;
     this.priority = priority;
+    this.project = project;
     TaskDiv.counter = (TaskDiv.counter || 0) + 1;
     this.id = `Task-${TaskDiv.counter}`;
+    this.element = document.createElement("div");
 
     // Check to see if there as a parent element so it can be attached to other divs
     const parentElement = document.getElementById(parentElementId);
@@ -42,11 +51,15 @@ export class TaskDiv {
       { detail: this.description, prefix: " Description: " },
       { detail: this.dueDate, prefix: " Due: " },
       { detail: this.priority, prefix: " Priority: " },
+      { detail: this.project, prefix: "Project: " },
     ]);
     stylingFunctions.newTaskStyling(taskDiv);
     parentElement.appendChild(taskDiv);
 
     console.log(`TaskDiv created and appended with ID: ${this.id}`);
+  }
+  getElement() {
+    return this.element;
   }
 }
 
@@ -57,6 +70,7 @@ export function createAndAppendTask({
   description,
   dueDate,
   priority,
+  project,
 }) {
   console.log(
     `Attempting to append task '${taskName}' to parentElementId: ${parentElementId}`
@@ -79,6 +93,7 @@ export function createAndAppendTask({
     { detail: description, prefix: " Description: " },
     { detail: dueDate, prefix: " Due: " },
     { detail: priority, prefix: " Priority: " },
+    { detail: project, prefix: "Project: " },
   ]);
 
   console.log("Applying styling to task div...");

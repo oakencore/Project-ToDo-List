@@ -1,3 +1,6 @@
+import { storageFunctions } from "./storageFunctions";
+import { TaskDiv } from "./TaskDiv";
+
 class ClickActions {
   constructor() {
     // Bind methods to make sure 'this' refers to the instance of the class
@@ -13,6 +16,8 @@ class ClickActions {
     this.showInbox = this.showInbox.bind(this);
     this.showToday = this.showToday.bind(this);
     this.showWeek = this.showWeek.bind(this);
+    this.showProjectTasks = this.showProjectTasks.bind(this);
+    this.setupProjectTabListeners = this.setupProjectTabListeners.bind(this);
   }
 
   // Methods for menu tab clicks
@@ -33,6 +38,16 @@ class ClickActions {
     }
   }
 
+  setupProjectTabListeners() {
+    const projectDivs = document.querySelectorAll(".project-name");
+    projectDivs.forEach((div) => {
+      div.addEventListener("click", (e) => {
+        const projectName = e.target.textContent; 
+        this.handleMainProjectDivClick(projectName);
+      });
+    });
+  }
+
   showInbox() {
     console.log("Showing Inbox content");
     this.ChangeInboxVisibility(true);
@@ -44,6 +59,7 @@ class ClickActions {
       window.getComputedStyle(todayContainer).display
     );
     this.ChangeWeekVisibility(false);
+    this.ChangeProjectsMainDivVisibility(false);
   }
 
   showToday() {
@@ -52,6 +68,7 @@ class ClickActions {
     this.taskCreatorDivVisibility(false);
     this.ChangeTodayVisibility(true);
     this.ChangeWeekVisibility(false);
+    this.ChangeProjectsMainDivVisibility(false);
   }
 
   showWeek() {
@@ -60,7 +77,50 @@ class ClickActions {
     this.taskCreatorDivVisibility(false);
     this.ChangeTodayVisibility(false);
     this.ChangeWeekVisibility(true);
+    this.ChangeProjectsMainDivVisibility(false);
   }
+
+  showProjectTasks(projectName) {
+    console.log(`Showing tasks for project: ${projectName}`);
+    this.ChangeTodayVisibility(false);
+    this.ChangeWeekVisibility(false);
+    this.taskCreatorDivVisibility(false);
+    this.ChangeInboxVisibility(false);
+    this.ChangeProjectsMainDivVisibility(true);
+    const projectsMainContainer = document.getElementById(
+      "projectsMainContainer"
+    );
+    this.clearProjectTasksExceptTitle('projectsMainContainer');
+    const allTasks = storageFunctions.parsedStorage();
+    // Get tasks linked to project name
+    const projectTasks = Object.values(allTasks).filter(
+      (task) => task.project === projectName
+    );
+
+    // Create and append tasks
+    projectTasks.forEach((taskData) => {
+      const taskElement = new TaskDiv(
+        taskData.title,
+        taskData.description,
+        taskData.dueDate,
+        taskData.priority,
+        taskData.project,
+        "projectsMainContainer"
+      );
+      projectsMainContainer.appendChild(taskElement.getElement());
+    });
+  }
+
+  clearProjectTasksExceptTitle(containerDivId) {
+    const container = document.getElementById(containerDivId);
+    const children = Array.from(container.children);
+  
+    //Remove children but not title
+    for (let i = children.length - 1; i > 0; i--) {
+      container.removeChild(children[i]);
+  }
+  }
+  
 
   NewTaskCreatorPrompt(event) {
     const clickedElement = event.target;
@@ -119,12 +179,20 @@ class ClickActions {
     }
   }
 
+  ChangeProjectsMainDivVisibility(show) {
+    const projectsMainDiv = document.getElementById("projectsMainContainer");
+    if (projectsMainDiv) {
+      projectsMainDiv.style.display = show ? "flex" : "none";
+    }
+  }
+
   handleAddTaskPromptClick() {
     console.log("AddTaskPrompt Div clicked!");
     this.ChangeInboxVisibility(false);
     this.ChangeTodayVisibility(false);
     this.taskCreatorDivVisibility(true);
     this.ChangeWeekVisibility(false);
+    this.ChangeProjectsMainDivVisibility(false);
   }
 
   handleTaskCreatorDivClick() {
@@ -133,6 +201,7 @@ class ClickActions {
     this.ChangeTodayVisibility(false);
     this.taskCreatorDivVisibility(false);
     this.ChangeWeekVisibility(false);
+    this.ChangeProjectsMainDivVisibility(false);
   }
 
   handleTodayDivClick() {
@@ -142,6 +211,7 @@ class ClickActions {
       this.ChangeTodayVisibility(true);
       this.taskCreatorDivVisibility(false);
       this.ChangeWeekVisibility(false);
+      this.ChangeProjectsMainDivVisibility(false);
     } catch (error) {
       console.error("Error handling Today Div click:", error);
     }
@@ -153,8 +223,21 @@ class ClickActions {
       this.ChangeTodayVisibility(false);
       this.taskCreatorDivVisibility(false);
       this.ChangeWeekVisibility(true);
+      this.ChangeProjectsMainDivVisibility(false);
     } catch (error) {
       console.error("Error handling week Div click:", error);
+    }
+  }
+  handleMainProjectDivClick() {
+    try {
+      console.log("Project Div clicked!");
+      this.ChangeInboxVisibility(false);
+      this.ChangeTodayVisibility(false);
+      this.taskCreatorDivVisibility(false);
+      this.ChangeWeekVisibility(false);
+      this.ChangeProjectsMainDivVisibility(true);
+    } catch (error) {
+      console.error("Error handling MainProject Div click:", error);
     }
   }
 }

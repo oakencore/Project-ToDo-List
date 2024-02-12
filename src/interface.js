@@ -22,7 +22,7 @@ export function divOrganiser() {
 
   setupHeader(mainDiv);
   const contentContainer = setupContentContainer(mainDiv);
-  setupMenuPanel(contentContainer);
+  const menuPanel = setupMenuPanel(contentContainer);
   // Inbox
   const { inbox, inboxContainer } = setupInbox(contentContainer);
   setupTaskCreatorDiv(inbox);
@@ -31,12 +31,17 @@ export function divOrganiser() {
   setupTodaySection(inbox);
   // Week
   setupWeekSection(inbox);
+  // Projects
+  setupProjectsSection(menuPanel);
+  setupProjectsMainContainerDivCreation(inbox)
   // Load Tasks from Local Storage
   loadTasksFromLocalStorage();
   // Display todays tasks
   storageFunctions.displayTodaysTasks();
   // Display week tasks
   storageFunctions.displayWeekTasks();
+  // Display project names
+  storageFunctions.displayProjectNames();
 
   setupFooter(mainDiv);
 }
@@ -93,6 +98,7 @@ function setupMenuPanel(contentContainer) {
   menuPanel.appendChild(createProjectsTitleTextDiv());
   menuPanelDivCreationProjects(menuPanel);
   stylingFunctions.menuPanelDivCreationProjectsTitleStyling();
+  return menuPanel;
 }
 
 function menuPanelCreation() {
@@ -258,15 +264,29 @@ function setupWeekSection(inbox) {
 // ---------------------------
 // Projects Setup
 // ---------------------------
+
+
 function projectsDivsCreation(menuPanelDivContainerProjects) {
-  const addProject = createDivWithText(
-    "Add Project",
-    "addProjectDiv",
-    "fas fa-plus-circle"
-  );
-  stylingFunctions.ClickStyling(addProject);
-  menuPanelDivContainerProjects.append(addProject);
+  const projectsContainer = createDivWithText("", "projectsContainer");
+  
+  menuPanelDivContainerProjects.append(projectsContainer);
 }
+
+function setupProjectsMainContainerDivCreation(inbox) {
+  const projectsMainContainer = createDivWithText("", "projectsMainContainer");
+
+  const projectsMainContainerDivtitle = createDivWithText(
+    "Project",
+    "projectsMainContainerDivtitle"
+  );
+
+  projectsMainContainer.appendChild(projectsMainContainerDivtitle);
+
+  stylingFunctions.ProjectsMainContainerDivStyling(projectsMainContainer);
+
+  inbox.append(projectsMainContainer);
+}
+
 
 function createProjectsTitleTextDiv() {
   return createDivWithText(
@@ -275,6 +295,38 @@ function createProjectsTitleTextDiv() {
     "fas fa-project-diagram",
     true
   );
+}
+
+function setupProjectsSection(menuPanel) {
+  const projectsContainerDiv = createDivWithText("", "projectsContainerDiv");
+  stylingFunctions.projectContainerStyling(projectsContainerDiv); 
+
+  menuPanel.appendChild(projectsContainerDiv); 
+}
+
+function setupProjectTasksSection(inbox, projectName) {
+  const projectTasks = createDivWithText("", `${projectName}-tasks`);
+  stylingFunctions.projectTasksStyling(projectTasks);
+
+  const projectTasksContainerDiv = createDivWithText(
+    "",
+    `${projectName}-tasksContainerDiv`
+  );
+
+  const projectTasksContainerDivTitle = createDivWithText(
+    projectName,
+    `${projectName}-tasksContainerDivTitle`
+  );
+
+  projectTasksContainerDiv.appendChild(projectTasksContainerDivTitle);
+  stylingFunctions.projectContainerStyling(projectTasksContainerDiv);
+  projectTasks.appendChild(projectTasksContainerDiv);
+
+  projectTasks.style.display = "none";
+
+  inbox.appendChild(projectTasks);
+
+  return projectTasksContainerDiv;
 }
 
 // ---------------------------
@@ -342,6 +394,7 @@ function loadTasksFromLocalStorage() {
       task.description,
       task.dueDate,
       task.priority,
+      task.project,
       "inboxContainerDiv"
     );
   });

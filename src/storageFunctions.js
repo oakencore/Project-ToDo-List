@@ -7,9 +7,11 @@ import {
   startOfDay,
 } from "date-fns";
 import { stylingFunctions } from "./stylingFunctions";
+import { displayProjectTasks } from "./interface";
+import { clickActions } from "./clickActions";
 
 const storageFunctions = {
-  storeLocally(taskName, dueDate, description, priority, notes) {
+  storeLocally(taskName, dueDate, description, priority, notes, project) {
     let counter = 0;
     if (localStorage.getItem(taskName + "number")) {
       counter = parseInt(localStorage.getItem(taskName + "number")) + 1;
@@ -22,6 +24,7 @@ const storageFunctions = {
         description: description,
         priority: priority,
         notes: notes,
+        project: project,
         number: counter,
       })
     );
@@ -57,6 +60,7 @@ const storageFunctions = {
         description: "description",
         priority: "1",
         notes: "notes",
+        project: "project",
         number: currentCount + i,
       });
       localStorage.setItem(key, value);
@@ -99,6 +103,7 @@ const storageFunctions = {
         task.description,
         task.dueDate,
         task.priority,
+        task.project,
         "todayContainerDiv"
       );
     });
@@ -140,6 +145,7 @@ const storageFunctions = {
         task.description,
         task.dueDate,
         task.priority,
+        task.project,
         "weekContainerDiv"
       );
     });
@@ -148,6 +154,37 @@ const storageFunctions = {
     const taskItems = weekContainerDiv.querySelectorAll(".task-item");
     taskItems.forEach((taskItem) => {
       stylingFunctions.weekItemStyling(taskItem);
+    });
+  },
+  displayProjectNames() {
+    const projectsContainerDiv = document.getElementById(
+      "projectsContainerDiv"
+    );
+    if (!projectsContainerDiv) {
+      console.error("projectsContainerDiv not found.");
+      return;
+    }
+
+    // Clear to prevent clones
+    projectsContainerDiv.innerHTML = "";
+
+    const localStorageItems = this.parsedStorage();
+    // Set() is really cool. A value in a set can only occur once! So everything in the set is unique.
+    const projectNames = new Set();
+
+    //  extract project names from localStorageItems
+    Object.values(localStorageItems).forEach((item) => {
+      if (item.project && !projectNames.has(item.project)) {
+        projectNames.add(item.project);
+        const projectDiv = document.createElement("div");
+        // Text is set as project name
+        projectDiv.textContent = item.project;
+        projectDiv.classList.add("project-name");
+        stylingFunctions.projectNameStyling(projectDiv);
+        projectsContainerDiv.appendChild(projectDiv);
+        projectDiv.addEventListener('click', () => clickActions.showProjectTasks(item.project));
+
+      }
     });
   },
 };

@@ -37,6 +37,7 @@ const formFunctions = {
         options: [1, 2, 3],
       },
       { label: "Notes:", type: "text", id: "notes" },
+      { label: "Project:", type: "text", id: "project" },
     ];
 
     fields.forEach((field) =>
@@ -70,12 +71,14 @@ const formFunctions = {
       const dueDate = document.getElementById("dueDate").value;
       const priority = document.getElementById("priority").value;
       const notes = document.getElementById("notes").value;
+      const project = document.getElementById("project").value;
 
       new TaskDiv(
         taskName,
         description,
         dueDate,
         priority,
+        project,
         "inboxContainerDiv"
       );
 
@@ -85,8 +88,11 @@ const formFunctions = {
         dueDate,
         description,
         priority,
-        notes
+        notes,
+        project
       );
+      //update the names 
+      storageFunctions.displayProjectNames();
 
       clickActions.NewTaskCreatorPrompt(event);
     });
