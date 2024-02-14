@@ -1,5 +1,6 @@
 import { storageFunctions } from "./storageFunctions";
 import { TaskDiv } from "./TaskDiv";
+import { formFunctions } from "./formFunctions";
 
 class ClickActions {
   constructor() {
@@ -21,6 +22,7 @@ class ClickActions {
     this.setupTaskClickListeners = this.setupTaskClickListeners.bind(this);
     this.populateEditFormWithTaskDetails =
       this.populateEditFormWithTaskDetails.bind(this);
+      
   }
 
   // Methods for menu tab clicks
@@ -53,13 +55,24 @@ class ClickActions {
 
   // For when a task is clicked so a user can edit it
   setupTaskClickListeners() {
-    document.querySelectorAll(".task-item").forEach((taskItem) => {
-      taskItem.addEventListener("click", (e) => {
-        const taskId = taskItem.id;
-        this.populateEditFormWithTaskDetails(taskId);
-      });
+    console.log("setupTaskClickListeners was invoked")
+    const tasksContainer = document.getElementById('inboxContainerDiv');
+    if (!tasksContainer) {
+        console.error('inboxContainerDiv not found');
+        return;
+    }
+    
+    tasksContainer.addEventListener('click', (e) => {
+        // Check if the clicked element or its parent is a .task-item
+        const taskItem = e.target.closest('.task-item');
+        if (taskItem) {
+          // Each task-item has to have a data-task-id attribute
+            const taskId = taskItem.dataset.taskId; 
+            console.log("Within setupTaskClickListener taskId is:", taskId)
+            formFunctions.setupAndPopulateTaskEditorForm(taskId);
+        }
     });
-  }
+}
 
   showInbox() {
     console.log("Showing Inbox content");
@@ -264,9 +277,12 @@ class ClickActions {
   populateEditFormWithTaskDetails(taskId) {
     console.log("populateEditForm is called");
     const taskDetails = storageFunctions.getTaskDetails(taskId);
+    console.log("Taskid information returned from getTaskDetails:", taskDetails)
 
     if (taskDetails) {
+      console.log("Title field:", document.getElementById("title"));
       document.getElementById("title").value = taskDetails.title || "";
+      console.log("Description field:", document.getElementById("description"));
       document.getElementById("description").value =
         taskDetails.description || "";
       document.getElementById("dueDate").value = taskDetails.dueDate || "";

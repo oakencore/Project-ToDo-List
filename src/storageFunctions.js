@@ -200,6 +200,7 @@ const storageFunctions = {
     });
   },
 
+  // returns an object of the task details
   getTaskDetails(taskId) {
     console.log("getTaskDetails invoked.");
     const localStorageItems = this.parsedStorage();

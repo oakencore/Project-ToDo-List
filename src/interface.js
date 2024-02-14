@@ -36,7 +36,7 @@ export function divOrganiser() {
   setupWeekSection(inbox);
   // Projects
   setupProjectsSection(menuPanel);
-  setupProjectsMainContainerDivCreation(inbox)
+  setupProjectsMainContainerDivCreation(inbox);
   // Load Tasks from Local Storage
   loadTasksFromLocalStorage();
   // Display todays tasks
@@ -47,6 +47,9 @@ export function divOrganiser() {
   storageFunctions.displayProjectNames();
 
   setupFooter(mainDiv);
+
+  // Calling this here to set up click listeners for every task in the inboxContainer
+  clickActions.setupTaskClickListeners()
 }
 
 // ---------------------------
@@ -268,10 +271,9 @@ function setupWeekSection(inbox) {
 // Projects Setup
 // ---------------------------
 
-
 function projectsDivsCreation(menuPanelDivContainerProjects) {
   const projectsContainer = createDivWithText("", "projectsContainer");
-  
+
   menuPanelDivContainerProjects.append(projectsContainer);
 }
 
@@ -290,7 +292,6 @@ function setupProjectsMainContainerDivCreation(inbox) {
   inbox.append(projectsMainContainer);
 }
 
-
 function createProjectsTitleTextDiv() {
   return createDivWithText(
     "Projects",
@@ -302,9 +303,9 @@ function createProjectsTitleTextDiv() {
 
 function setupProjectsSection(menuPanel) {
   const projectsContainerDiv = createDivWithText("", "projectsContainerDiv");
-  stylingFunctions.projectContainerStyling(projectsContainerDiv); 
+  stylingFunctions.projectContainerStyling(projectsContainerDiv);
 
-  menuPanel.appendChild(projectsContainerDiv); 
+  menuPanel.appendChild(projectsContainerDiv);
 }
 
 function setupProjectTasksSection(inbox, projectName) {
@@ -338,7 +339,7 @@ function setupProjectTasksSection(inbox, projectName) {
 function setupTaskEditorDiv(inbox) {
   const taskEditorDiv = createDivWithText("", "taskEditorDiv");
   inbox.appendChild(taskEditorDiv);
-  stylingFunctions.taskEditorDivStyling()
+  stylingFunctions.taskEditorDivStyling();
   return taskEditorDiv;
 }
 
@@ -411,12 +412,4 @@ function loadTasksFromLocalStorage() {
       "inboxContainerDiv"
     );
   });
-}
-
-function refreshTasksDisplay() {
-  storageFunctions.displayTodaysTasks();
-  storageFunctions.displayWeekTasks();
-  storageFunctions.displayProjectNames();
-  clickActions.setupTaskClickListeners();
-}
-
+};

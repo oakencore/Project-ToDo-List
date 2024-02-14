@@ -49,7 +49,8 @@ export class TaskDiv {
     const checkBox = formFunctions.createCheckbox();
     checkBox.dataset.taskId = this.id;
 
-    clickActions.setupTaskClickListeners();
+    // Casuing issues so commenting out for now
+    // clickActions.setupTaskClickListeners();
 
     checkBox.addEventListener('change', function() {
       if (this.checked) {
@@ -99,7 +100,12 @@ export function createAndAppendTask({
   }
 
   const taskDiv = createDivWithText(taskName, "", "", true);
-  console.log(`Task div created for: ${taskName}`);
+  taskDiv.classList.add("task-item");
+  taskDiv.dataset.taskId = this.id;
+  console.log(`Taskdiv created for: ${taskName}`);
+
+
+
 
   const checkBox = formFunctions.createCheckbox();
   console.log("Checkbox created and adding to task div...");
@@ -117,5 +123,6 @@ export function createAndAppendTask({
   stylingFunctions.newTaskStyling(taskDiv);
   console.log(`Appending task div to parentElementId: ${parentElementId}`);
   parentElement.appendChild(taskDiv);
-  clickActions.setupTaskClickListeners();
+  // Causing issues so commenting out for now
+  // clickActions.setupTaskClickListeners();
 }
