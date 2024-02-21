@@ -1,258 +1,184 @@
-  import { clickActions } from "./clickActions.js";
-  import { stylingFunctions } from "./stylingFunctions.js";
-  import { createDivWithText } from "./interface.js";
-  import { TaskDiv } from "./TaskDiv.js";
-  import { createAndAppendTask } from "./TaskDiv.js";
-  import { storageFunctions } from "./storageFunctions.js";
+import { createDivWithText } from "./interface.js";
+import { stylingFunctions } from "./stylingFunctions.js";
 
-  const formFunctions = {
-    initialiseTaskForm(taskCreatorDiv) {
-      const form = this.createForm();
-      this.addInputFieldsToForm(form);
-      this.appendSubmitButtonToForm(form);
-      this.handleFormSubmission(form, taskCreatorDiv);
-      taskCreatorDiv.appendChild(form);
-    },
+const formFunctions = {
+  initialiseTaskForm(taskCreatorDiv) {
+    const form = this.createForm();
+    this.addInputFieldsToForm(form);
+    this.appendSubmitButtonToForm(form);
+    this.handleFormSubmission(form, taskCreatorDiv);
+    taskCreatorDiv.appendChild(form);
+  },
 
-    createForm() {
-      const form = document.createElement("form");
-      form.id = "taskCreationForm";
-      Object.assign(form.style, {
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-      });
+  createForm() {
+    const form = document.createElement("form");
+    form.id = "taskCreationForm";
+    Object.assign(form.style, {
+      display: "flex",
+      flexDirection: "column",
+      gap: "10px",
+    });
 
-      // Hidden input for task ID
-      const taskIdInput = document.createElement("input");
-      taskIdInput.type = "hidden";
-      taskIdInput.id = "taskId";
-      form.appendChild(taskIdInput);
+    // Hidden input for task ID
+    const taskIdInput = document.createElement("input");
+    taskIdInput.type = "hidden";
+    taskIdInput.id = "taskId";
+    form.appendChild(taskIdInput);
 
-      return form;
-    },
+    return form;
+  },
 
-    addInputFieldsToForm(form) {
-      const fields = [
-        { label: "Title:", type: "text", id: "title", required: true },
-        { label: "Due Date:", type: "date", id: "dueDate" },
-        { label: "Description:", type: "text", id: "description" },
-        {
-          label: "Priority:",
-          type: "select",
-          id: "priority",
-          options: [1, 2, 3],
-        },
-        { label: "Notes:", type: "text", id: "notes" },
-        { label: "Project:", type: "text", id: "project" },
-      ];
+  addInputFieldsToForm(form) {
+    const fields = [
+      { label: "Title:", type: "text", id: "title", required: true },
+      { label: "Due Date:", type: "date", id: "dueDate" },
+      { label: "Description:", type: "text", id: "description" },
+      {
+        label: "Priority:",
+        type: "select",
+        id: "priority",
+        options: [1, 2, 3],
+      },
+      { label: "Notes:", type: "text", id: "notes" },
+      { label: "Project:", type: "text", id: "project" },
+    ];
 
-      fields.forEach((field) =>
-        form.appendChild(
-          this.createInputField(
-            field.label,
-            field.type,
-            field.id,
-            field.required,
-            field.options
-          )
+    fields.forEach((field) =>
+      form.appendChild(
+        this.createInputField(
+          field.label,
+          field.type,
+          field.id,
+          field.required,
+          field.options
         )
-      );
-    },
+      )
+    );
+  },
 
-    appendSubmitButtonToForm(form) {
-      const submitBtn = document.createElement("button");
-      submitBtn.type = "submit";
-      submitBtn.textContent = "Create Task";
-      Object.assign(submitBtn.style, {
-        marginTop: "20px",
-      });
-      form.appendChild(submitBtn);
-    },
+  appendSubmitButtonToForm(form) {
+    const submitBtn = document.createElement("button");
+    submitBtn.type = "submit";
+    submitBtn.textContent = "Create Task";
+    Object.assign(submitBtn.style, {
+      marginTop: "20px",
+    });
+    form.appendChild(submitBtn);
+  },
 
-    handleFormSubmission(form, taskCreatorDiv) {
-      form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        // TaskID is hidden and used to edit a task only
-        const taskId = document.getElementById("taskId").value;
-        const taskName = document.getElementById("title").value;
-        const description = document.getElementById("description").value;
-        const dueDate = document.getElementById("dueDate").value;
-        const priority = document.getElementById("priority").value;
-        const notes = document.getElementById("notes").value;
-        const project = document.getElementById("project").value;
+  handleFormSubmission(form, taskCreatorDiv) {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      // TaskID is hidden and used to edit a task only
+      const taskId = document.getElementById("taskId").value;
+      const taskName = document.getElementById("title").value;
+      const description = document.getElementById("description").value;
+      const dueDate = document.getElementById("dueDate").value;
+      const priority = document.getElementById("priority").value;
+      const notes = document.getElementById("notes").value;
+      const project = document.getElementById("project").value;
 
-        if (taskId) {
-          // Update existing task
-          storageFunctions.updateTask(taskId, {
-            title: taskName,
-            description,
-            dueDate,
-            priority,
-            notes,
-            project,
-          });
-        } else {
-          // Create new task and store it in localStorage
-          new TaskDiv(
-            taskName,
-            description,
-            dueDate,
-            priority,
-            project,
-            "inboxContainerDiv"
-          );
-          storageFunctions.storeLocally(
-            taskName,
-            dueDate,
-            description,
-            priority,
-            notes,
-            project
-          );
-        }
-
-        // Update names and tasks display
-        storageFunctions.displayProjectNames();
-
-        // Reset form for next use and hide it
-        form.reset();
-        // Reset hidden taskId field
-        document.getElementById("taskId").value = "";
-        // hide task creator
-        taskCreatorDiv.style.display = "none";
-      });
-    },
-
-    createInputField(
-      labelText,
-      inputType,
-      inputName,
-      isRequired = false,
-      options = null
-    ) {
-      const wrapper = document.createElement("div");
-      const label = document.createElement("label");
-      label.textContent = labelText;
-      label.htmlFor = inputName;
-      wrapper.appendChild(label);
-
-      let input;
-      if (inputType === "select" && options) {
-        input = document.createElement("select");
-        options.forEach((option) => {
-          const optionElement = document.createElement("option");
-          optionElement.value = option;
-          optionElement.textContent = option;
-          input.appendChild(optionElement);
+      if (taskId) {
+        // Update existing task
+        storageFunctions.updateTask(taskId, {
+          title: taskName,
+          description,
+          dueDate,
+          priority,
+          notes,
+          project,
         });
       } else {
-        input = document.createElement("input");
-        input.type = inputType;
+        // Create new task and store it in localStorage
+        new TaskDiv(
+          taskName,
+          description,
+          dueDate,
+          priority,
+          project,
+          "inboxContainerDiv"
+        );
+        storageFunctions.storeLocally(
+          taskName,
+          dueDate,
+          description,
+          priority,
+          notes,
+          project
+        );
       }
 
-      input.id = inputName;
-      input.name = inputName;
-      input.required = isRequired;
-      wrapper.appendChild(input);
+      // Update names and tasks display
+      storageFunctions.displayProjectNames();
 
-      if (inputName === "notes") {
-        Object.assign(input.style, {
-          width: "550px",
-          height: "70px",
-        });
-      }
+      // Reset form for next use and hide it
+      form.reset();
+      // Reset hidden taskId field
+      document.getElementById("taskId").value = "";
+      // hide task creator
+      taskCreatorDiv.style.display = "none";
+    });
+  },
 
-      return wrapper;
-    },
+  createInputField(
+    labelText,
+    inputType,
+    inputName,
+    isRequired = false,
+    options = null
+  ) {
+    const wrapper = document.createElement("div");
+    const label = document.createElement("label");
+    label.textContent = labelText;
+    label.htmlFor = inputName;
+    wrapper.appendChild(label);
 
-    createCloseIconDiv() {
-      const closeDiv = createDivWithText("", "closeDiv", "fas fa-times");
-      Object.assign(closeDiv.style, {
-        position: "absolute",
-        top: "10px",
-        right: "10px",
-        cursor: "pointer",
+    let input;
+    if (inputType === "select" && options) {
+      input = document.createElement("select");
+      options.forEach((option) => {
+        const optionElement = document.createElement("option");
+        optionElement.value = option;
+        optionElement.textContent = option;
+        input.appendChild(optionElement);
       });
-      return closeDiv;
-    },
+    } else {
+      input = document.createElement("input");
+      input.type = inputType;
+    }
 
-    createCheckbox() {
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      stylingFunctions.checkboxStyling(checkbox);
-      return checkbox;
-    },
+    input.id = inputName;
+    input.name = inputName;
+    input.required = isRequired;
+    wrapper.appendChild(input);
 
-    setupAndPopulateTaskEditorForm(taskId) {
-      const taskEditorDiv = document.getElementById("taskEditorDiv");
-      taskEditorDiv.innerHTML = ""; // Clear the div before adding anything
-
-      // Ensure task details are fetched
-      const taskDetails = storageFunctions.getTaskDetails(taskId);
-      if (!taskDetails) {
-        console.error("Exiting...No details found for task ID:", taskId);
-        return; 
-      }
-
-      // Dynamically create form elements
-      const form = document.createElement("form");
-      form.id = "taskEditForm";
-
-      // Define form fields
-      const fields = [
-        {
-          label: "Title",
-          id: "editTitle",
-          value: taskDetails.title || "",
-          type: "text",
-        },
-        {
-          label: "Description",
-          id: "editDescription",
-          value: taskDetails.description || "",
-          type: "text",
-        },
-        {
-          label: "Due Date",
-          id: "editDueDate",
-          value: taskDetails.dueDate || "",
-          type: "date",
-        },
-        // Add more fields as necessary
-      ];
-
-      // Create and append form fields
-      fields.forEach((field) => {
-        const fieldWrapper = document.createElement("div");
-        const label = document.createElement("label");
-        label.textContent = field.label;
-        label.htmlFor = field.id;
-        const input = document.createElement("input");
-        input.type = field.type;
-        input.id = field.id;
-        input.value = field.value;
-        fieldWrapper.appendChild(label);
-        fieldWrapper.appendChild(input);
-        form.appendChild(fieldWrapper);
+    if (inputName === "notes") {
+      Object.assign(input.style, {
+        width: "550px",
+        height: "70px",
       });
+    }
 
-      // Save Button
-      const saveButton = document.createElement("button");
-      saveButton.textContent = "Save Changes";
-      saveButton.type = "submit";
-      form.appendChild(saveButton);
+    return wrapper;
+  },
 
-      // Append the form to the taskEditorDiv
-      taskEditorDiv.appendChild(form);
+  createCloseIconDiv() {
+    const closeDiv = createDivWithText("", "closeDiv", "fas fa-times");
+    Object.assign(closeDiv.style, {
+      position: "absolute",
+      top: "10px",
+      right: "10px",
+      cursor: "pointer",
+    });
+    return closeDiv;
+  },
 
-      // Add event listener for form submission
-      form.addEventListener("submit", function (event) {
-        event.preventDefault();
-        // Logic to handle form submission, such as updating task details in storage
-        console.log("Form submission logic goes here.");
-      });
-    },
-  };
+  createCheckbox() {
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    stylingFunctions.checkboxStyling(checkbox);
+    return checkbox;
+  },
+};
 
-  export { formFunctions };
+export { formFunctions };

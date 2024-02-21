@@ -1,10 +1,8 @@
-import { storageFunctions } from "./storageFunctions";
-import { TaskDiv } from "./TaskDiv";
-import { formFunctions } from "./formFunctions";
+import { storageFunctions } from "./storageFunctions.js";
+import { TaskDiv } from "./TaskDiv.js";
 
 class ClickActions {
   constructor() {
-    // Bind methods to make sure 'this' refers to the instance of the class
     this.NewTaskCreatorPrompt = this.NewTaskCreatorPrompt.bind(this);
     this.handleAddTaskPromptClick = this.handleAddTaskPromptClick.bind(this);
     this.handleTaskCreatorDivClick = this.handleTaskCreatorDivClick.bind(this);
@@ -22,25 +20,16 @@ class ClickActions {
     this.setupTaskClickListeners = this.setupTaskClickListeners.bind(this);
     this.populateEditFormWithTaskDetails =
       this.populateEditFormWithTaskDetails.bind(this);
-      
   }
 
-  // Methods for menu tab clicks
   setupMenuTabListeners() {
     const inboxDiv = document.getElementById("inboxDiv");
     const todayDiv = document.getElementById("todayDiv");
     const weekDiv = document.getElementById("thisWeekDiv");
-    console.log(inboxDiv, todayDiv, weekDiv);
 
     if (inboxDiv) inboxDiv.addEventListener("click", this.showInbox);
-    if (todayDiv) {
-      console.log("Adding click listener to todayDiv");
-      todayDiv.addEventListener("click", this.showToday);
-    }
-    if (weekDiv) {
-      console.log("Adding click listener to weekDiv");
-      weekDiv.addEventListener("click", this.showWeek);
-    }
+    if (todayDiv) todayDiv.addEventListener("click", this.showToday);
+    if (weekDiv) weekDiv.addEventListener("click", this.showWeek);
   }
 
   setupProjectTabListeners() {
@@ -53,61 +42,53 @@ class ClickActions {
     });
   }
 
-  // For when a task is clicked so a user can edit it
   setupTaskClickListeners() {
-    console.log("setupTaskClickListeners was invoked")
-    const tasksContainer = document.getElementById('inboxContainerDiv');
-    if (!tasksContainer) {
-        console.error('inboxContainerDiv not found');
-        return;
-    }
-    
-    tasksContainer.addEventListener('click', (e) => {
-        // Check if the clicked element or its parent is a .task-item
-        const taskItem = e.target.closest('.task-item');
-        if (taskItem) {
-          // Each task-item has to have a data-task-id attribute
-            const taskId = taskItem.dataset.taskId; 
-            console.log("Within setupTaskClickListener taskId is:", taskId)
-            formFunctions.setupAndPopulateTaskEditorForm(taskId);
-        }
+    const tasksContainer = document.getElementById("inboxContainerDiv");
+    if (!tasksContainer) return console.error("inboxContainerDiv not found");
+
+    tasksContainer.addEventListener("click", (e) => {
+      const taskItem = e.target.closest(".task-item");
+      if (taskItem) {
+        const taskId = taskItem.dataset.taskId; 
+        this.handleTaskEditClick(taskId);
+        this.setupAndPopulateTaskEditorForm(taskId);
+      }
     });
-}
+  }
 
   showInbox() {
-    console.log("Showing Inbox content");
+    // console.log("Showing Inbox content");
     this.ChangeInboxVisibility(true);
     this.taskCreatorDivVisibility(false);
     this.ChangeTodayVisibility(false);
     const todayContainer = document.getElementById("today");
-    console.log(
-      "After visibility change:",
-      window.getComputedStyle(todayContainer).display
-    );
     this.ChangeWeekVisibility(false);
     this.ChangeProjectsMainDivVisibility(false);
+    this.taskEditorDivVisibility(false);
   }
 
   showToday() {
-    console.log("Showing Today content");
+    // console.log("Showing Today content");
     this.ChangeInboxVisibility(false);
     this.taskCreatorDivVisibility(false);
     this.ChangeTodayVisibility(true);
     this.ChangeWeekVisibility(false);
     this.ChangeProjectsMainDivVisibility(false);
+    this.taskEditorDivVisibility(false);
   }
 
   showWeek() {
-    console.log("Showing Week content");
+    // console.log("Showing Week content");
     this.ChangeInboxVisibility(false);
     this.taskCreatorDivVisibility(false);
     this.ChangeTodayVisibility(false);
     this.ChangeWeekVisibility(true);
     this.ChangeProjectsMainDivVisibility(false);
+    this.taskEditorDivVisibility(false);
   }
 
   showProjectTasks(projectName) {
-    console.log(`Showing tasks for project: ${projectName}`);
+    // console.log(`Showing tasks for project: ${projectName}`);
     this.ChangeTodayVisibility(false);
     this.ChangeWeekVisibility(false);
     this.taskCreatorDivVisibility(false);
@@ -204,6 +185,13 @@ class ClickActions {
     }
   }
 
+  taskEditorDivVisibility(show) {
+    const taskEditorDiv = document.getElementById("taskEditorDiv");
+    if (taskEditorDiv) {
+      taskEditorDiv.style.display = show ? "flex" : "none";
+    }
+  }
+
   ChangeProjectsMainDivVisibility(show) {
     const projectsMainDiv = document.getElementById("projectsMainContainer");
     if (projectsMainDiv) {
@@ -218,6 +206,7 @@ class ClickActions {
     this.taskCreatorDivVisibility(true);
     this.ChangeWeekVisibility(false);
     this.ChangeProjectsMainDivVisibility(false);
+    this.taskEditorDivVisibility(false);
   }
 
   handleTaskCreatorDivClick() {
@@ -227,6 +216,7 @@ class ClickActions {
     this.taskCreatorDivVisibility(false);
     this.ChangeWeekVisibility(false);
     this.ChangeProjectsMainDivVisibility(false);
+    this.taskEditorDivVisibility(false);
   }
 
   handleTodayDivClick() {
@@ -237,6 +227,7 @@ class ClickActions {
       this.taskCreatorDivVisibility(false);
       this.ChangeWeekVisibility(false);
       this.ChangeProjectsMainDivVisibility(false);
+      this.taskEditorDivVisibility(false);
     } catch (error) {
       console.error("Error handling Today Div click:", error);
     }
@@ -249,6 +240,7 @@ class ClickActions {
       this.taskCreatorDivVisibility(false);
       this.ChangeWeekVisibility(true);
       this.ChangeProjectsMainDivVisibility(false);
+      this.taskEditorDivVisibility(false);
     } catch (error) {
       console.error("Error handling week Div click:", error);
     }
@@ -261,23 +253,27 @@ class ClickActions {
       this.taskCreatorDivVisibility(false);
       this.ChangeWeekVisibility(false);
       this.ChangeProjectsMainDivVisibility(true);
+      this.taskEditorDivVisibility(false);
     } catch (error) {
       console.error("Error handling MainProject Div click:", error);
     }
   }
-  handleTaskEditClick(taskId) {
-    console.log(`Editing task: ${taskId}`);
-    // Get task details
-    const taskDetails = storageFunctions.getTaskDetails(taskId);
-    if (taskDetails) {
-      this.populateTaskEditorForm(taskDetails);
-    }
+  handleTaskEditClick() {
+    this.ChangeInboxVisibility(false);
+    this.ChangeTodayVisibility(false);
+    this.taskCreatorDivVisibility(false);
+    this.taskEditorDivVisibility(true);
+    this.ChangeWeekVisibility(false);
+    this.ChangeProjectsMainDivVisibility(false);
   }
 
   populateEditFormWithTaskDetails(taskId) {
     console.log("populateEditForm is called");
     const taskDetails = storageFunctions.getTaskDetails(taskId);
-    console.log("Taskid information returned from getTaskDetails:", taskDetails)
+    console.log(
+      "Taskid information returned from getTaskDetails:",
+      taskDetails
+    );
 
     if (taskDetails) {
       console.log("Title field:", document.getElementById("title"));
@@ -308,6 +304,82 @@ class ClickActions {
     } else {
       console.error("No details found for task ID:", taskId);
     }
+  }
+
+  // Edit form modular functions.
+
+  // Clear and display task editor logic
+  clearAndDisplayEditor(taskEditorDiv) {
+    taskEditorDiv.innerHTML = "";
+    taskEditorDiv.style.display = "flex";
+  }
+
+  // Field creator for dynamic form field creation!
+  createFormFields(fields) {
+    const fragments = document.createDocumentFragment();
+    fields.forEach((field) => {
+      const { label, id, type, value } = field;
+      const div = document.createElement("div");
+      const labelElement = document.createElement("label");
+      labelElement.textContent = label;
+      labelElement.htmlFor = id;
+
+      const input = document.createElement(
+        type === "textarea" ? "textarea" : "input"
+      );
+      if (type !== "textarea") input.type = type;
+      input.id = id;
+      input.value = value;
+
+      div.appendChild(labelElement);
+      div.appendChild(input);
+      fragments.appendChild(div);
+    });
+    return fragments;
+  }
+
+  // Generate and append the task editor form dynamically
+  setupAndPopulateTaskEditorForm(taskId) {
+    const taskEditorDiv = document.getElementById("taskEditorDiv");
+    this.clearAndDisplayEditor(taskEditorDiv);
+
+    const taskDetails = storageFunctions.getTaskDetails(taskId);
+    if (!taskDetails)
+      return console.error("Exiting...No details found for task ID:", taskId);
+
+    const form = document.createElement("form");
+    form.id = "taskEditForm";
+    const formFields = this.createFormFields(taskDetails);
+    form.appendChild(formFields);
+
+    const saveButton = this.createSaveButton();
+    form.appendChild(saveButton);
+
+    form.addEventListener("submit", (event) =>
+      this.handleFormSubmission(event, taskId, taskEditorDiv)
+    );
+    taskEditorDiv.appendChild(form);
+  }
+
+  // Create a save button
+  createSaveButton() {
+    const button = document.createElement("button");
+    button.textContent = "Save Changes";
+    button.type = "submit";
+    return button;
+  }
+
+  // Handle form data on submission button
+  handleFormSubmission(event, taskId, taskEditorDiv) {
+    event.preventDefault();
+    const taskDetails = {
+      title: document.getElementById("editTitle").value,
+      description: document.getElementById("editDescription").value,
+      dueDate: document.getElementById("editDueDate").value,
+    };
+    storageFunctions.updateTask(taskId, taskDetails);
+    taskEditorDiv.style.display = "none";
+    storageFunctions.refreshTasksDisplay();
   }
 }
 

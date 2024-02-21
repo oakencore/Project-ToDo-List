@@ -5,6 +5,12 @@ import { storageFunctions } from "./storageFunctions.js";
 import { formFunctions } from "./formFunctions.js";
 import { TaskDiv } from "./TaskDiv.js";
 
+/**
+ * Organises and initialises the main div elements and sections of the to do app.
+ *
+ * Loads fonts, applies styling, creates the main div and sections, populates tasks from storage,
+ * displays today's and this week's tasks, displays project names, and sets up task click listeners.
+ */
 export function divOrganiser() {
   storageFunctions.populateDummyLocalStorage(4);
   const localStorageItems = storageFunctions.parsedStorage();
@@ -49,7 +55,7 @@ export function divOrganiser() {
   setupFooter(mainDiv);
 
   // Calling this here to set up click listeners for every task in the inboxContainer
-  clickActions.setupTaskClickListeners()
+  clickActions.setupTaskClickListeners();
 }
 
 // ---------------------------
@@ -340,8 +346,8 @@ function setupTaskEditorDiv(inbox) {
   const taskEditorDiv = createDivWithText("", "taskEditorDiv");
   inbox.appendChild(taskEditorDiv);
   stylingFunctions.taskEditorDivStyling();
-  return taskEditorDiv;
 }
+
 
 // ---------------------------
 // Footer Setup

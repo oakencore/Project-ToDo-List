@@ -47,7 +47,7 @@ const storageFunctions = {
     let currentCount = localStorage.length;
 
     for (let i = 0; i < numberOfObjects; i++) {
-      const taskID = `Task-${i+1}`;
+      const taskId = `Task-${i + 1}`;
       // Manual date selection
       // JavaScript's Date object indexes months starting from 0
       // Random date
@@ -58,23 +58,25 @@ const storageFunctions = {
       // );
       // getFullyear gets the current year. Random * 3 adds a random number between 0 and 2 and adds it to the current year. Month random 0-11, Day random 1-28
       // let dueDateISO = dueDate.toISOString();
-      let dueDate = formatISO(new Date(2024, 1, 9),{representation:'date'})
+      let dueDate = formatISO(new Date(2024, 1, 20), {
+        representation: "date",
+      });
       // console.log(`Due date for task ${i}:`, dueDate);
       const value = {
-        taskID: `task-${i+1}`,
+        taskId,
         title: `taskName${currentCount + i}`,
-        dueDate: dueDate,
+        dueDate,
         description: "the description",
         priority: "1",
         notes: "notes",
         project: "example project",
         number: currentCount + i,
       };
-      localStorage.setItem(taskID, JSON.stringify(value));
+      localStorage.setItem(taskId, JSON.stringify(value));
     }
   },
 
-  // parse local storage and assign a unique taskID to each task within it
+  // parse local storage and assign a unique taskID to each task it
   parsedStorage() {
     let localStorageItems = {};
     for (let i = 0; i < localStorage.length; i++) {
@@ -210,18 +212,48 @@ const storageFunctions = {
       console.log("getTaskDetails returns:", taskDetails);
       return taskDetails;
     } else {
-      console.log("There was no taskID");
+      console.log("getTaskDetails: There was no taskID");
       return null;
     }
   },
 
   updateTask(taskId, newDetails) {
-    let tasks = JSON.parse(localStorage.getItem("tasks") || "{}");
-    if (tasks[taskId]) {
-      tasks[taskId] = { ...tasks[taskId], ...newDetails };
-      localStorage.setItem("tasks", JSON.stringify(tasks));
+    const taskValue = localStorage.getItem(taskId);
+    if (taskValue) {
+      const task = JSON.parse(taskValue);
+      const updatedTask = { ...task, ...newDetails };
+      localStorage.setItem(taskId, JSON.stringify(updatedTask));
+      console.log(`Task with ID ${taskId} has been updated.`);
+    } else {
+      console.log(
+        `Task with ID ${taskId} does not exist and cannot be updated.`
+      );
     }
   },
+  refreshTasksDisplay() {
+    // First, clear existing tasks
+    const inboxContainer = document.getElementById("inboxContainerDiv");
+    const taskElements = inboxContainer.querySelectorAll(".task-item");
+    taskElements.forEach(task => task.remove());
+  
+    // Then, repopulate tasks from localStorage
+    const storedTasks = this.parsedStorage(); // This retrieves all tasks stored in localStorage
+    Object.values(storedTasks).forEach(task => {
+      // Assuming TaskDiv constructor correctly handles appending itself to the specified parent ID
+      new TaskDiv(
+        task.title,
+        task.description,
+        task.dueDate,
+        task.priority,
+        task.project,
+        "inboxContainerDiv" // Ensure this ID points to a container exclusively for tasks
+      );
+    });
+  
+    // Refresh the view to the inbox or the currently active view
+    clickActions.showInbox(); // Adjust according to your application's logic
+  },
+  
 };
 
 export { storageFunctions };
