@@ -1,120 +1,85 @@
 import { stylingFunctions } from "./stylingFunctions.js";
-import { createDivWithText } from "./interface.js";
 import { formFunctions } from "./formFunctions.js";
 import { storageFunctions } from "./storageFunctions.js";
-import { clickActions } from "./clickActions.js";
+import { v4 as uuidv4 } from "uuid";
 
-export function createTaskDetails(taskDiv, details) {
-  console.log("Creating task details...", details);
-  details.forEach(({ detail, prefix }) => {
-    console.log(`Adding detail: ${prefix}${detail}`);
-    if (detail) {
-      const textNode = document.createTextNode(`${prefix}${detail}`);
-      taskDiv.appendChild(textNode);
-    }
-  });
-}
-
-// Manage state of each task
 export class TaskDiv {
-  constructor(
-    taskName,
+  constructor({
+    taskId,
+    title,
     description,
     dueDate,
     priority,
     project,
-    parentElementId
-  ) {
-    console.log(`Creating new TaskDiv: ${taskName}`);
-    this.taskName = taskName;
+    parentElementId,
+  }) {
+    console.log(`[Debug] Creating TaskDiv with ID: ${taskId}, Parent Element ID: ${parentElementId}`);
+    
+    // Task ID must be provided or provide a new one
+    this.id = taskId || uuidv4();
+    console.log(`[Debug] Task ID after check: ${this.id}`);
+
+    this.title = title;
     this.description = description;
     this.dueDate = dueDate;
     this.priority = priority;
     this.project = project;
-    TaskDiv.counter = (TaskDiv.counter || 0) + 1;
-    this.id = `Task-${TaskDiv.counter}`;
-    this.element = document.createElement("div");
 
-    // Check to see if there as a parent element so it can be attached to other divs
+    // Find the parent to append to
     const parentElement = document.getElementById(parentElementId);
     if (!parentElement) {
-      console.error(`Parent element with ID ${parentElementId} not found.`);
+      console.error(`[Error] Parent element with ID ${parentElementId} not found.`);
       return;
+    } else {
+      console.log(`[Debug] Found parent element with ID ${parentElementId}`);
     }
 
-    // Create task div and append it to parent element
-    const taskDiv = createDivWithText(taskName, this.id, "", true);
-    // adding task-item class name to see if I can give new tasks a class to apply styling to.
-    taskDiv.classList.add("task-item");
-    const checkBox = formFunctions.createCheckbox();
-    checkBox.dataset.taskId = this.id;
+    // Create the task element and set its properties.
+    this.element = document.createElement("div");
+    this.element.id = this.id;
+    this.element.classList.add("task-item");
+    this.element.dataset.taskId = this.id;
+    console.log(`[Debug] Task element created with ID: ${this.id}`);
 
-    checkBox.addEventListener("change", function () {
-      if (this.checked) {
-        const taskId = this.dataset.taskId;
-        // Remove task from local storage
-        storageFunctions.completeTaskAndRemove(taskId);
-        // Remove task from DOM
-        document.getElementById(taskId)?.remove();
-      }
+    // Create and append a checkbox to the task.
+    const checkBox = formFunctions.createCheckbox();
+    checkBox.addEventListener("change", (event) => {
+      event.stopPropagation(); // Prevent event from bubbling up to the parent DOM item.
+      console.log(`[Debug] Checkbox change event for Task ID: ${this.id}`);
+      storageFunctions.completeTaskAndRemove(this.id);
     });
 
-    taskDiv.insertBefore(checkBox, taskDiv.firstChild);
-    createTaskDetails(taskDiv, [
-      { detail: this.description, prefix: " Description: " },
-      { detail: this.dueDate, prefix: " Due: " },
-      { detail: this.priority, prefix: " Priority: " },
-      { detail: this.project, prefix: "Project: " },
-    ]);
-    stylingFunctions.newTaskStyling(taskDiv);
-    parentElement.appendChild(taskDiv);
+    this.element.prepend(checkBox); // Prepend checkbox to allow marking tasks as completed.
 
-    console.log(`TaskDiv created and appended with ID: ${this.id}`);
+    // Add task details to the element.
+    const detailsArray = [
+      title,
+      `Description: ${description}`,
+      `Due: ${dueDate}`,
+      `Priority: ${priority}`,
+      `Project: ${project}`,
+    ];
+
+    detailsArray.forEach((detail, index) => {
+      const detailElement = document.createElement("div");
+      detailElement.textContent = detail;
+      this.element.appendChild(detailElement);
+      console.log(`[Debug] Added detail to task: ${detail}, Index: ${index}`);
+    });
+
+    stylingFunctions.newTaskStyling(this.element);
+    parentElement.appendChild(this.element);
+    console.log(`[Debug] TaskDiv appended to parent with ID: ${parentElementId}`);
   }
+
   getElement() {
     return this.element;
   }
 }
 
-// Factory function to create and append a task div in the DOM
-export function createAndAppendTask({
-  parentElementId,
-  taskName,
-  description,
-  dueDate,
-  priority,
-  project,
-}) {
-  console.log(
-    `Attempting to append task '${taskName}' to parentElementId: ${parentElementId}`
-  );
-  const parentElement = document.getElementById(parentElementId);
-  if (!parentElement) {
-    console.error(`Parent element with ID ${parentElementId} not found.`);
-    return;
-  }
 
-  const taskDiv = createDivWithText(taskName, "", "", true);
-  taskDiv.classList.add("task-item");
-  taskDiv.dataset.taskId = this.id;
-  console.log(`Taskdiv created for: ${taskName}`);
 
-  const checkBox = formFunctions.createCheckbox();
-  console.log("Checkbox created and adding to task div...");
-  taskDiv.insertBefore(checkBox, taskDiv.firstChild);
 
-  console.log("Adding task details...");
-  createTaskDetails(taskDiv, [
-    { detail: description, prefix: " Description: " },
-    { detail: dueDate, prefix: " Due: " },
-    { detail: priority, prefix: " Priority: " },
-    { detail: project, prefix: "Project: " },
-  ]);
 
-  console.log("Applying styling to task div...");
-  stylingFunctions.newTaskStyling(taskDiv);
-  console.log(`Appending task div to parentElementId: ${parentElementId}`);
-  parentElement.appendChild(taskDiv);
-  // Causing issues so commenting out for now
-  // clickActions.setupTaskClickListeners();
-}
+
+

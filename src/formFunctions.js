@@ -1,5 +1,8 @@
 import { createDivWithText } from "./interface.js";
 import { stylingFunctions } from "./stylingFunctions.js";
+import { storageFunctions } from "./storageFunctions.js";
+import { clickActions } from "./clickActions.js";
+import { v4 as uuidv4 } from "uuid";
 
 const formFunctions = {
   initialiseTaskForm(taskCreatorDiv) {
@@ -31,13 +34,13 @@ const formFunctions = {
   addInputFieldsToForm(form) {
     const fields = [
       { label: "Title:", type: "text", id: "title", required: true },
-      { label: "Due Date:", type: "date", id: "dueDate" },
+      { label: "Due Date:", type: "date", id: "dueDate", required: true },
       { label: "Description:", type: "text", id: "description" },
       {
         label: "Priority:",
         type: "select",
         id: "priority",
-        options: [1, 2, 3],
+        options: ["High", "Medium", "Low"],
       },
       { label: "Notes:", type: "text", id: "notes" },
       { label: "Project:", type: "text", id: "project" },
@@ -59,7 +62,7 @@ const formFunctions = {
   appendSubmitButtonToForm(form) {
     const submitBtn = document.createElement("button");
     submitBtn.type = "submit";
-    submitBtn.textContent = "Create Task";
+    submitBtn.textContent = "Save Task";
     Object.assign(submitBtn.style, {
       marginTop: "20px",
     });
@@ -69,53 +72,49 @@ const formFunctions = {
   handleFormSubmission(form, taskCreatorDiv) {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
-      // TaskID is hidden and used to edit a task only
-      const taskId = document.getElementById("taskId").value;
-      const taskName = document.getElementById("title").value;
-      const description = document.getElementById("description").value;
-      const dueDate = document.getElementById("dueDate").value;
-      const priority = document.getElementById("priority").value;
-      const notes = document.getElementById("notes").value;
-      const project = document.getElementById("project").value;
 
-      if (taskId) {
-        // Update existing task
-        storageFunctions.updateTask(taskId, {
-          title: taskName,
-          description,
-          dueDate,
-          priority,
-          notes,
-          project,
-        });
-      } else {
-        // Create new task and store it in localStorage
-        new TaskDiv(
-          taskName,
-          description,
-          dueDate,
-          priority,
-          project,
-          "inboxContainerDiv"
-        );
-        storageFunctions.storeLocally(
-          taskName,
-          dueDate,
-          description,
-          priority,
-          notes,
-          project
-        );
+      // Check if existing task or a new one
+      let taskId = document.getElementById("taskId").value;
+      if (!taskId) {
+        // If no taskId, generate a new one
+        taskId = uuidv4();
       }
 
-      // Update names and tasks display
-      storageFunctions.displayProjectNames();
+      // Extract form values, now including taskId in the taskDetails object
+      const title = document.getElementById("title").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const dueDate = document.getElementById("dueDate").value;
+      const priority = document.getElementById("priority").value;
+      const notes = document.getElementById("notes").value.trim();
+      const project = document.getElementById("project").value.trim();
 
-      // Reset form for next use and hide it
+      const taskDetails = {
+        taskId,
+        title,
+        description,
+        dueDate,
+        priority,
+        notes,
+        project,
+      };
+
+      // Choice: update existing task or create a new one
+      if (document.getElementById("taskId").value) {
+        // Existing task update
+        storageFunctions.updateTask(taskId, taskDetails);
+      } else {
+        // New task creation
+        storageFunctions.storeLocally(taskDetails);
+      }
+
+      // Refresh tasks display and reset form
+      storageFunctions.refreshTasksDisplay();
+
+      // Show inbox
+      clickActions.ChangeInboxVisibility(true);
+
       form.reset();
-      // Reset hidden taskId field
       document.getElementById("taskId").value = "";
-      // hide task creator
       taskCreatorDiv.style.display = "none";
     });
   },
@@ -152,16 +151,8 @@ const formFunctions = {
     input.required = isRequired;
     wrapper.appendChild(input);
 
-    if (inputName === "notes") {
-      Object.assign(input.style, {
-        width: "550px",
-        height: "70px",
-      });
-    }
-
     return wrapper;
   },
-
   createCloseIconDiv() {
     const closeDiv = createDivWithText("", "closeDiv", "fas fa-times");
     Object.assign(closeDiv.style, {
@@ -172,7 +163,6 @@ const formFunctions = {
     });
     return closeDiv;
   },
-
   createCheckbox() {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";

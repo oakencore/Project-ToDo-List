@@ -5,20 +5,7 @@ import { storageFunctions } from "./storageFunctions.js";
 import { formFunctions } from "./formFunctions.js";
 import { TaskDiv } from "./TaskDiv.js";
 
-/**
- * Organises and initialises the main div elements and sections of the to do app.
- *
- * Loads fonts, applies styling, creates the main div and sections, populates tasks from storage,
- * displays today's and this week's tasks, displays project names, and sets up task click listeners.
- */
 export function divOrganiser() {
-  storageFunctions.populateDummyLocalStorage(4);
-  const localStorageItems = storageFunctions.parsedStorage();
-  // console.log(
-  //   "Object containing todays tasks:",
-  //   storageFunctions.getTodaysTasks(localStorageItems)
-  // );
-
   stylingFunctions.loadFontAwesome();
   stylingFunctions.loadGoogleFonts();
   stylingFunctions.globalStyling();
@@ -30,11 +17,13 @@ export function divOrganiser() {
   const contentContainer = setupContentContainer(mainDiv);
   const menuPanel = setupMenuPanel(contentContainer);
   // Inbox
-  const { inbox, inboxContainer } = setupInbox(contentContainer);
+  const { inbox } = setupInbox(contentContainer);
   // Task Creator
   setupTaskCreatorDiv(inbox);
   // Task Editor
   setupTaskEditorDiv(inbox);
+
+  storageFunctions.populateDummyLocalStorage(1);
 
   // Today
   setupTodaySection(inbox);
@@ -152,20 +141,15 @@ function menuPanelDivCreationProjects(menuPanel) {
 // Inbox
 // ---------------------------
 function setupInbox(contentContainer) {
-  console.log("Starting setupInbox...");
-
   // Create and style the inbox
   const inbox = contentContainer.appendChild(createDivWithText("", "inbox"));
-  console.log("Inbox created:", inbox);
   stylingFunctions.inboxStyling(inbox);
 
   // Create inbox container
   const inboxContainer = createDivWithText("", "inboxContainerDiv");
-  console.log("Inbox container created:", inboxContainer);
 
   // Append the inbox container to the inbox
   inbox.appendChild(inboxContainer);
-  console.log("Inbox container appended to inbox");
 
   // Create and append the inbox container title
   const inboxContainerDivTitle = createDivWithText(
@@ -173,15 +157,8 @@ function setupInbox(contentContainer) {
     "inboxContainerTitle",
     ""
   );
-  console.log(
-    "Appending inboxContainerDivTitle to inboxContainer",
-    inboxContainer
-  );
   inboxContainer.append(inboxContainerDivTitle);
-  console.log("inboxContainerDivTitle appended:", inboxContainerDivTitle);
 
-  // Create and style the inbox item (e.g., "Add Task" button) within the inbox container
-  console.log("Setting up inbox item in:", inboxContainer);
   const inboxItem = createDivWithText(
     "Add Task",
     "addTaskPrompt",
@@ -191,15 +168,9 @@ function setupInbox(contentContainer) {
 
   // Add click listener to open the task creation form
   addClickListenerToDiv(inboxItem, clickActions.NewTaskCreatorPrompt);
-  console.log("Appending inboxItem to inboxContainer", inboxContainer);
   inboxContainer.appendChild(inboxItem);
-  console.log("inboxItem appended:", inboxItem);
   stylingFunctions.inboxItemStyling(inboxItem);
-  console.log("Inbox item setup complete in:", inboxContainer);
-
   stylingFunctions.inboxContainerStyling(inboxContainer);
-
-  console.log("Inbox and inbox container setup complete.");
   return { inbox, inboxContainer };
 }
 
@@ -314,30 +285,6 @@ function setupProjectsSection(menuPanel) {
   menuPanel.appendChild(projectsContainerDiv);
 }
 
-function setupProjectTasksSection(inbox, projectName) {
-  const projectTasks = createDivWithText("", `${projectName}-tasks`);
-  stylingFunctions.projectTasksStyling(projectTasks);
-
-  const projectTasksContainerDiv = createDivWithText(
-    "",
-    `${projectName}-tasksContainerDiv`
-  );
-
-  const projectTasksContainerDivTitle = createDivWithText(
-    projectName,
-    `${projectName}-tasksContainerDivTitle`
-  );
-
-  projectTasksContainerDiv.appendChild(projectTasksContainerDivTitle);
-  stylingFunctions.projectContainerStyling(projectTasksContainerDiv);
-  projectTasks.appendChild(projectTasksContainerDiv);
-
-  projectTasks.style.display = "none";
-
-  inbox.appendChild(projectTasks);
-
-  return projectTasksContainerDiv;
-}
 
 // ---------------------------
 // Task Editor
@@ -347,7 +294,6 @@ function setupTaskEditorDiv(inbox) {
   inbox.appendChild(taskEditorDiv);
   stylingFunctions.taskEditorDivStyling();
 }
-
 
 // ---------------------------
 // Footer Setup
@@ -408,14 +354,10 @@ function loadTasksFromLocalStorage() {
   }
   Object.keys(tasks).forEach((key) => {
     const task = tasks[key];
-    console.log("Appending task to inboxContainerDiv:", task);
-    new TaskDiv(
-      task.title,
-      task.description,
-      task.dueDate,
-      task.priority,
-      task.project,
-      "inboxContainerDiv"
-    );
+    new TaskDiv({
+      ...task,
+      parentElementId: "inboxContainerDiv"
+    });
   });
-};
+}
+

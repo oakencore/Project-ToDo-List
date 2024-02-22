@@ -1,4 +1,4 @@
-import { TaskDiv } from "./TaskDiv";
+import { TaskDiv, createAndAppendTask } from "./TaskDiv";
 import {
   parseJSON,
   isToday,
@@ -8,35 +8,21 @@ import {
   formatISO,
 } from "date-fns";
 import { stylingFunctions } from "./stylingFunctions";
-import { displayProjectTasks } from "./interface";
 import { clickActions } from "./clickActions";
+import { v4 as uuidv4 } from "uuid";
 
 const storageFunctions = {
-  storeLocally(taskName, dueDate, description, priority, notes, project) {
-    let counter = 0;
-    if (localStorage.getItem(taskName + "number")) {
-      counter = parseInt(localStorage.getItem(taskName + "number")) + 1;
-    }
-    localStorage.setItem(
-      taskName,
-      JSON.stringify({
-        title: taskName,
-        dueDate: dueDate,
-        description: description,
-        priority: priority,
-        notes: notes,
-        project: project,
-        number: counter,
-      })
-    );
+  storeLocally(taskDetails) {
+    const { taskId, title, dueDate, description, priority, notes, project } = taskDetails;
+    const taskData = { taskId, title, dueDate, description, priority, notes, project };
+    localStorage.setItem(taskId, JSON.stringify(taskData));
   },
-
+  
   clearLocalStorage() {
-    if (localStorage) {
-      localStorage.clear();
-    }
+    localStorage.clear();
   },
 
+  // Remove task from localStorage by taskID
   completeTaskAndRemove(taskId) {
     localStorage.removeItem(taskId);
     console.log(`Task with ID ${taskId} has been removed from storage.`);
@@ -44,162 +30,124 @@ const storageFunctions = {
 
   populateDummyLocalStorage(numberOfObjects) {
     this.clearLocalStorage();
-    let currentCount = localStorage.length;
-
+    console.log("[populateDummyLocalStorage] Clearing localStorage.");
     for (let i = 0; i < numberOfObjects; i++) {
-      const taskId = `Task-${i + 1}`;
-      // Manual date selection
-      // JavaScript's Date object indexes months starting from 0
-      // Random date
-      // let dueDate = new Date(
-      //   new Date().getFullYear() + Math.floor(Math.random() * 3),
-      //   Math.floor(Math.random() * 12),
-      //   Math.floor(Math.random() * 28) + 1
-      // );
-      // getFullyear gets the current year. Random * 3 adds a random number between 0 and 2 and adds it to the current year. Month random 0-11, Day random 1-28
-      // let dueDateISO = dueDate.toISOString();
-      let dueDate = formatISO(new Date(2024, 1, 20), {
-        representation: "date",
-      });
-      // console.log(`Due date for task ${i}:`, dueDate);
-      const value = {
-        taskId,
-        title: `taskName${currentCount + i}`,
-        dueDate,
-        description: "the description",
-        priority: "1",
-        notes: "notes",
-        project: "example project",
-        number: currentCount + i,
-      };
-      localStorage.setItem(taskId, JSON.stringify(value));
-    }
-  },
+        const dueDate = formatISO(new Date(2024, 1, 20), { representation: "date" });
+        const taskId = uuidv4();
+        const taskDetails = {
+            taskId: taskId,
+            title: `taskName${i}`,
+            dueDate: dueDate,
+            description: "the description",
+            priority: "High",
+            notes: "notes",
+            project: "example project",
+            parentElementId: "inboxContainerDiv",
+        };
 
-  // parse local storage and assign a unique taskID to each task it
-  parsedStorage() {
-    let localStorageItems = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      const value = localStorage.getItem(key);
-      const parsedValue = JSON.parse(value);
-      if (parsedValue && typeof parsedValue === "object") {
-        parsedValue.taskId = key;
-      }
-      localStorageItems[key] = parsedValue;
-    }
-    return localStorageItems;
-  },
+        console.log(`[populateDummyLocalStorage] Creating task ${i + 1}/${numberOfObjects}`, taskDetails);
 
-  getTodaysTasks(localStorageItems) {
-    let tasksDueToday = {};
-    for (let key in localStorageItems) {
-      if (localStorageItems.hasOwnProperty(key)) {
-        let taskDate = parseJSON(localStorageItems[key].dueDate);
-        if (isToday(taskDate)) {
-          tasksDueToday[key] = localStorageItems[key];
+        // Check if task already exists in DOM to avoid duplication
+        const existingTaskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+        if (!existingTaskElement) {
+            // If the task doesn't exist, create and append it
+            const newTaskDiv = new TaskDiv(taskDetails);
+            console.log(`[populateDummyLocalStorage] Task ${taskId} added to DOM.`);
+
+            // Store task in localStorage
+            storageFunctions.storeLocally(taskDetails);
+            console.log(`[populateDummyLocalStorage] Task ${taskId} stored in localStorage.`);
+        } else {
+            console.log(`[populateDummyLocalStorage] Task ${taskId} already exists in DOM, skipping.`);
         }
-      }
     }
-    return tasksDueToday;
+    console.log("[populateDummyLocalStorage] Completed populating localStorage and DOM.");
+},
+
+  
+
+// parse local storage
+parsedStorage() {
+  let tasks = {};
+  Object.keys(localStorage).forEach((key) => {
+    try {
+      const potentialTask = JSON.parse(localStorage.getItem(key));
+      if (potentialTask && potentialTask.title && potentialTask.dueDate) { 
+        tasks[key] = potentialTask;
+      }
+    } catch (e) {
+      console.error("Error parsing item from localStorage:", e);
+    }
+  });
+  return tasks;
+},
+
+
+  getTodaysTasks() {
+    const tasks = this.parsedStorage();
+    return Object.values(tasks).filter((task) =>
+      isToday(parseJSON(task.dueDate))
+    );
   },
 
   displayTodaysTasks() {
-    const tasksDueToday = this.getTodaysTasks(this.parsedStorage());
-    const todayContainerDiv = document.getElementById("todayContainerDiv");
-    // todayContainerDiv.innerHTML = "";
-    Object.keys(tasksDueToday).forEach((key) => {
-      const task = tasksDueToday[key];
-
-      const newTaskDiv = new TaskDiv(
-        task.title,
-        task.description,
-        task.dueDate,
-        task.priority,
-        task.project,
-        "todayContainerDiv"
-      );
-    });
-
-    // Trying something new. This applies styling to only the tasks with class name task-item from the constructor TaskDiv
-    const taskItems = todayContainerDiv.querySelectorAll(".task-item");
-    taskItems.forEach((taskItem) => {
-      stylingFunctions.todayItemStyling(taskItem);
+    const tasksDueToday = this.getTodaysTasks();
+    tasksDueToday.forEach((task) => {
+      new TaskDiv({ ...task, parentElementId: "todayContainerDiv" });
     });
   },
-  getWeekTasks(localStorageItems) {
+
+  getWeekTasks() {
+    const tasks = this.parsedStorage();
     const today = startOfDay(new Date());
-    // seven days from today
     const endOfWeek = addDays(today, 7);
-
-    let tasksDueWeek = {};
-
-    Object.keys(localStorageItems).forEach((key) => {
-      const task = localStorageItems[key];
-      const taskDate = startOfDay(new Date(task.dueDate));
-
-      // Check date is within the next 7 days
-      if (isWithinInterval(taskDate, { start: today, end: endOfWeek })) {
-        tasksDueWeek[key] = task;
-      }
-    });
-
-    return tasksDueWeek;
+    return Object.values(tasks).filter((task) =>
+      isWithinInterval(parseJSON(task.dueDate), {
+        start: today,
+        end: endOfWeek,
+      })
+    );
   },
   displayWeekTasks() {
-    const tasksDueWeek = this.getWeekTasks(this.parsedStorage());
-    const weekContainerDiv = document.getElementById("weekContainerDiv");
-    // todayContainerDiv.innerHTML = "";
-    Object.keys(tasksDueWeek).forEach((key) => {
-      const task = tasksDueWeek[key];
-
-      const newTaskDiv = new TaskDiv(
-        task.title,
-        task.description,
-        task.dueDate,
-        task.priority,
-        task.project,
-        "weekContainerDiv"
-      );
-    });
-
-    // Trying something new. This applies styling to only the tasks with class name task-item from the constructor TaskDiv
-    const taskItems = weekContainerDiv.querySelectorAll(".task-item");
-    taskItems.forEach((taskItem) => {
-      stylingFunctions.weekItemStyling(taskItem);
+    const tasksDueWeek = this.getWeekTasks();
+    tasksDueWeek.forEach((task) => {
+      new TaskDiv({ ...task, parentElementId: "weekContainerDiv" });
     });
   },
   displayProjectNames() {
     const projectsContainerDiv = document.getElementById(
       "projectsContainerDiv"
     );
-    if (!projectsContainerDiv) {
-      console.error("projectsContainerDiv not found.");
-      return;
-    }
-
-    // Clear to prevent clones
+    // Clear existing projects
     projectsContainerDiv.innerHTML = "";
-
-    const localStorageItems = this.parsedStorage();
-    // Set() is really cool. A value in a set can only occur once! So everything in the set is unique.
-    const projectNames = new Set();
-
-    //  extract project names from localStorageItems
-    Object.values(localStorageItems).forEach((item) => {
-      if (item.project && !projectNames.has(item.project)) {
-        projectNames.add(item.project);
+    const tasks = this.parsedStorage();
+    const projects = new Set(Object.values(tasks).map((task) => task.project));
+    projects.forEach((project) => {
+      if (project) {
         const projectDiv = document.createElement("div");
-        // Text is set as project name
-        projectDiv.textContent = item.project;
+        projectDiv.textContent = project;
         projectDiv.classList.add("project-name");
         stylingFunctions.projectNameStyling(projectDiv);
         projectsContainerDiv.appendChild(projectDiv);
         projectDiv.addEventListener("click", () =>
-          clickActions.showProjectTasks(item.project)
+          clickActions.showProjectTasks(project)
         );
       }
     });
+  },
+
+  updateTask(taskId, newDetails) {
+    const taskValue = localStorage.getItem(taskId);
+    if (taskValue) {
+      const task = JSON.parse(taskValue);
+      const updatedTask = { ...task, ...newDetails };
+      localStorage.setItem(taskId, JSON.stringify(updatedTask));
+      console.log(`Task with ID ${taskId} has been updated.`);
+    } else {
+      console.log(
+        `Task with ID ${taskId} does not exist and cannot be updated.`
+      );
+    }
   },
 
   // returns an object of the task details
@@ -221,6 +169,7 @@ const storageFunctions = {
     const taskValue = localStorage.getItem(taskId);
     if (taskValue) {
       const task = JSON.parse(taskValue);
+      console.log("Updating with new details in updateTask:", newDetails);
       const updatedTask = { ...task, ...newDetails };
       localStorage.setItem(taskId, JSON.stringify(updatedTask));
       console.log(`Task with ID ${taskId} has been updated.`);
@@ -231,29 +180,33 @@ const storageFunctions = {
     }
   },
   refreshTasksDisplay() {
-    // First, clear existing tasks
-    const inboxContainer = document.getElementById("inboxContainerDiv");
-    const taskElements = inboxContainer.querySelectorAll(".task-item");
-    taskElements.forEach(task => task.remove());
-  
-    // Then, repopulate tasks from localStorage
-    const storedTasks = this.parsedStorage(); // This retrieves all tasks stored in localStorage
-    Object.values(storedTasks).forEach(task => {
-      // Assuming TaskDiv constructor correctly handles appending itself to the specified parent ID
-      new TaskDiv(
-        task.title,
-        task.description,
-        task.dueDate,
-        task.priority,
-        task.project,
-        "inboxContainerDiv" // Ensure this ID points to a container exclusively for tasks
-      );
+    const inboxContainerDiv = document.getElementById("inboxContainerDiv");
+    // Select and remove only the task elements. Used the class of task-item I added to each task.
+    const taskElements = inboxContainerDiv.querySelectorAll(".task-item");
+    taskElements.forEach((element) => element.remove());
+
+    // Repopulate tasks from localStorage
+    const tasks = this.parsedStorage();
+    Object.values(tasks).forEach((task) => {
+      new TaskDiv({
+        title: task.title,
+        description: task.description,
+        dueDate: task.dueDate,
+        priority: task.priority,
+        project: task.project,
+        parentElementId: "inboxContainerDiv",
+      });
     });
-  
-    // Refresh the view to the inbox or the currently active view
-    clickActions.showInbox(); // Adjust according to your application's logic
   },
-  
+
+  convertDetailsToArray(details) {
+    return Object.keys(details).map((key) => ({
+      label: key.charAt(0).toUpperCase() + key.slice(1),
+      id: key,
+      type: key === "description" ? "textarea" : "input",
+      value: details[key],
+    }));
+  },
 };
 
 export { storageFunctions };

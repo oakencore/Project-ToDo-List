@@ -46,10 +46,20 @@ class ClickActions {
     const tasksContainer = document.getElementById("inboxContainerDiv");
     if (!tasksContainer) return console.error("inboxContainerDiv not found");
 
+    // Listen for clicks on the tasks container
     tasksContainer.addEventListener("click", (e) => {
+      // Check if the clicked element or its parent is a task item
       const taskItem = e.target.closest(".task-item");
-      if (taskItem) {
-        const taskId = taskItem.dataset.taskId; 
+      // Exit if not clicking on a task
+      if (!taskItem) return;
+
+      // Check if the click is on a checkbox within a task
+      if (e.target.type === "checkbox") {
+        e.stopPropagation();
+      } else {
+        const taskId = taskItem.dataset.taskId;
+        console.log(`Task ID: ${taskId}`);
+
         this.handleTaskEditClick(taskId);
         this.setupAndPopulateTaskEditorForm(taskId);
       }
@@ -306,34 +316,42 @@ class ClickActions {
     }
   }
 
-  // Edit form modular functions.
-
   // Clear and display task editor logic
   clearAndDisplayEditor(taskEditorDiv) {
     taskEditorDiv.innerHTML = "";
     taskEditorDiv.style.display = "flex";
   }
 
-  // Field creator for dynamic form field creation!
+  // Field creator for dynamic form field creation! Also filters fields to show.
   createFormFields(fields) {
     const fragments = document.createDocumentFragment();
+    const fieldsToShow = [
+      "Title",
+      "DueDate",
+      "Description",
+      "Priority",
+      "Project",
+    ]; // Adjust based on your actual field labels or IDs
+
     fields.forEach((field) => {
-      const { label, id, type, value } = field;
-      const div = document.createElement("div");
-      const labelElement = document.createElement("label");
-      labelElement.textContent = label;
-      labelElement.htmlFor = id;
+      if (fieldsToShow.includes(field.label)) {
+        // Only create fields for the specified labels
+        const div = document.createElement("div");
+        const labelElement = document.createElement("label");
+        labelElement.textContent = field.label;
+        labelElement.htmlFor = field.id;
 
-      const input = document.createElement(
-        type === "textarea" ? "textarea" : "input"
-      );
-      if (type !== "textarea") input.type = type;
-      input.id = id;
-      input.value = value;
+        const input = document.createElement(
+          field.type === "textarea" ? "textarea" : "input"
+        );
+        if (field.type !== "textarea") input.type = field.type;
+        input.id = field.id;
+        input.value = field.value;
 
-      div.appendChild(labelElement);
-      div.appendChild(input);
-      fragments.appendChild(div);
+        div.appendChild(labelElement);
+        div.appendChild(input);
+        fragments.appendChild(div);
+      }
     });
     return fragments;
   }
@@ -347,21 +365,35 @@ class ClickActions {
     if (!taskDetails)
       return console.error("Exiting...No details found for task ID:", taskId);
 
-    const form = document.createElement("form");
+    // Convert task details to an array
+    const fieldsArray = storageFunctions.convertDetailsToArray(taskDetails);
+
+    // Check if form already exists and clear it to prevent duplication
+    let form = document.getElementById("taskEditForm");
+    if (form) {
+      // Remove the existing form to prevent duplication
+      form.remove();
+    }
+
+    // Create a new form
+    form = document.createElement("form");
     form.id = "taskEditForm";
-    const formFields = this.createFormFields(taskDetails);
+    const formFields = this.createFormFields(fieldsArray);
     form.appendChild(formFields);
 
     const saveButton = this.createSaveButton();
     form.appendChild(saveButton);
 
-    form.addEventListener("submit", (event) =>
+    // Remove any existing event listeners by cloning the form
+    const formClone = form.cloneNode(true);
+    taskEditorDiv.appendChild(formClone);
+
+    // New event listener to handle form submission
+    formClone.addEventListener("submit", (event) =>
       this.handleFormSubmission(event, taskId, taskEditorDiv)
     );
-    taskEditorDiv.appendChild(form);
   }
 
-  // Create a save button
   createSaveButton() {
     const button = document.createElement("button");
     button.textContent = "Save Changes";
@@ -369,14 +401,19 @@ class ClickActions {
     return button;
   }
 
-  // Handle form data on submission button
   handleFormSubmission(event, taskId, taskEditorDiv) {
+    // Prevent the form from submitting in the traditional way
     event.preventDefault();
     const taskDetails = {
-      title: document.getElementById("editTitle").value,
-      description: document.getElementById("editDescription").value,
-      dueDate: document.getElementById("editDueDate").value,
+      title: document.getElementById("title").value,
+      description: document.getElementById("description").value,
+      dueDate: document.getElementById("dueDate").value,
+      priority: document.getElementById("priority").value,
+      project: document.getElementById("project").value,
+      taskId: document.getElementById("taskId").value,
     };
+    console.log("Form Submission for Task ID in handleFormSubmission:", taskId);
+    console.log("Title in handleFormSubmission:", title);
     storageFunctions.updateTask(taskId, taskDetails);
     taskEditorDiv.style.display = "none";
     storageFunctions.refreshTasksDisplay();

@@ -86,6 +86,7 @@
     "undici-types": "^5.26.5",
     "update-browserslist-db": "^1.0.13",
     "uri-js": "^4.4.1",
+    "uuid": "^9.0.1",
     "watchpack": "^2.4.0",
     "webpack-merge": "^5.10.0",
     "webpack-sources": "^3.2.3",
