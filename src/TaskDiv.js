@@ -13,11 +13,9 @@ export class TaskDiv {
     project,
     parentElementId,
   }) {
-    console.log(`[Debug] Creating TaskDiv with ID: ${taskId}, Parent Element ID: ${parentElementId}`);
-    
-    // Task ID must be provided or provide a new one
+
+    // Task ID must be provided or provide a new UNIQUE!one
     this.id = taskId || uuidv4();
-    console.log(`[Debug] Task ID after check: ${this.id}`);
 
     this.title = title;
     this.description = description;
@@ -30,8 +28,6 @@ export class TaskDiv {
     if (!parentElement) {
       console.error(`[Error] Parent element with ID ${parentElementId} not found.`);
       return;
-    } else {
-      console.log(`[Debug] Found parent element with ID ${parentElementId}`);
     }
 
     // Create the task element and set its properties.
@@ -39,17 +35,19 @@ export class TaskDiv {
     this.element.id = this.id;
     this.element.classList.add("task-item");
     this.element.dataset.taskId = this.id;
-    console.log(`[Debug] Task element created with ID: ${this.id}`);
 
     // Create and append a checkbox to the task.
     const checkBox = formFunctions.createCheckbox();
     checkBox.addEventListener("change", (event) => {
-      event.stopPropagation(); // Prevent event from bubbling up to the parent DOM item.
-      console.log(`[Debug] Checkbox change event for Task ID: ${this.id}`);
+      // Prevent event from bubbling up to the parent DOM item.
+      event.stopPropagation();
       storageFunctions.completeTaskAndRemove(this.id);
+      this.element.remove();
+      storageFunctions.displayProjectNames();
     });
 
-    this.element.prepend(checkBox); // Prepend checkbox to allow marking tasks as completed.
+    // Prepend checkbox to allow marking tasks as completed.
+    this.element.prepend(checkBox);
 
     // Add task details to the element.
     const detailsArray = [
@@ -64,22 +62,13 @@ export class TaskDiv {
       const detailElement = document.createElement("div");
       detailElement.textContent = detail;
       this.element.appendChild(detailElement);
-      console.log(`[Debug] Added detail to task: ${detail}, Index: ${index}`);
     });
 
     stylingFunctions.newTaskStyling(this.element);
     parentElement.appendChild(this.element);
-    console.log(`[Debug] TaskDiv appended to parent with ID: ${parentElementId}`);
   }
 
   getElement() {
     return this.element;
   }
 }
-
-
-
-
-
-
-

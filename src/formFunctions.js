@@ -110,8 +110,10 @@ const formFunctions = {
       // Refresh tasks display and reset form
       storageFunctions.refreshTasksDisplay();
 
+      storageFunctions.displayProjectNames();
+
       // Show inbox
-      clickActions.ChangeInboxVisibility(true);
+      clickActions.showInbox()
 
       form.reset();
       document.getElementById("taskId").value = "";

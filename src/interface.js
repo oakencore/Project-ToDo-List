@@ -23,8 +23,6 @@ export function divOrganiser() {
   // Task Editor
   setupTaskEditorDiv(inbox);
 
-  storageFunctions.populateDummyLocalStorage(1);
-
   // Today
   setupTodaySection(inbox);
   // Week
@@ -33,18 +31,16 @@ export function divOrganiser() {
   setupProjectsSection(menuPanel);
   setupProjectsMainContainerDivCreation(inbox);
   // Load Tasks from Local Storage
-  loadTasksFromLocalStorage();
+  storageFunctions.populateDummyLocalStorage(1
+    );
+  storageFunctions.loadTasksFromLocalStorage();
   // Display todays tasks
   storageFunctions.displayTodaysTasks();
   // Display week tasks
   storageFunctions.displayWeekTasks();
   // Display project names
   storageFunctions.displayProjectNames();
-
   setupFooter(mainDiv);
-
-  // Calling this here to set up click listeners for every task in the inboxContainer
-  clickActions.setupTaskClickListeners();
 }
 
 // ---------------------------
@@ -166,8 +162,6 @@ function setupInbox(contentContainer) {
   );
   stylingFunctions.ClickStyling(inboxItem);
 
-  // Add click listener to open the task creation form
-  addClickListenerToDiv(inboxItem, clickActions.NewTaskCreatorPrompt);
   inboxContainer.appendChild(inboxItem);
   stylingFunctions.inboxItemStyling(inboxItem);
   stylingFunctions.inboxContainerStyling(inboxContainer);
@@ -194,7 +188,8 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   // Add close icon div and append to the taskcreatordiv
   const closeIconDiv = formFunctions.createCloseIconDiv();
   taskCreatorDiv.appendChild(closeIconDiv);
-  closeIconDiv.addEventListener("click", clickActions.NewTaskCreatorPrompt);
+  // TODO newtaskcreatorprompt was removed.
+  // closeIconDiv.addEventListener("click", clickActions.NewTaskCreatorPrompt);
   taskCreatorDiv.appendChild(form);
 }
 
@@ -285,7 +280,6 @@ function setupProjectsSection(menuPanel) {
   menuPanel.appendChild(projectsContainerDiv);
 }
 
-
 // ---------------------------
 // Task Editor
 // ---------------------------
@@ -345,19 +339,4 @@ export function createDivWithText(
   return newDiv;
 }
 
-function loadTasksFromLocalStorage() {
-  const tasks = storageFunctions.parsedStorage();
-  const inboxContainerDiv = document.getElementById("inboxContainerDiv");
-  if (!inboxContainerDiv) {
-    console.error("inboxContainerDiv not found in the DOM");
-    return;
-  }
-  Object.keys(tasks).forEach((key) => {
-    const task = tasks[key];
-    new TaskDiv({
-      ...task,
-      parentElementId: "inboxContainerDiv"
-    });
-  });
-}
 
