@@ -1,6 +1,5 @@
 import { stylingFunctions } from "./stylingFunctions.js";
 import { formFunctions } from "./formFunctions.js";
-import { storageFunctions } from "./storageFunctions.js";
 import { v4 as uuidv4 } from "uuid";
 
 export class TaskDiv {
@@ -13,7 +12,6 @@ export class TaskDiv {
     project,
     parentElementId,
   }) {
-
     // Task ID must be provided or provide a new UNIQUE!one
     this.id = taskId || uuidv4();
 
@@ -26,7 +24,9 @@ export class TaskDiv {
     // Find the parent to append to
     const parentElement = document.getElementById(parentElementId);
     if (!parentElement) {
-      console.error(`[Error] Parent element with ID ${parentElementId} not found.`);
+      console.error(
+        `[Error] Parent element with ID ${parentElementId} not found.`
+      );
       return;
     }
 
@@ -35,16 +35,10 @@ export class TaskDiv {
     this.element.id = this.id;
     this.element.classList.add("task-item");
     this.element.dataset.taskId = this.id;
+    console.log("TaskDiv Constructor: Set dataset.taskId to:", this.id);
 
     // Create and append a checkbox to the task.
     const checkBox = formFunctions.createCheckbox();
-    checkBox.addEventListener("change", (event) => {
-      // Prevent event from bubbling up to the parent DOM item.
-      event.stopPropagation();
-      storageFunctions.completeTaskAndRemove(this.id);
-      this.element.remove();
-      storageFunctions.displayProjectNames();
-    });
 
     // Prepend checkbox to allow marking tasks as completed.
     this.element.prepend(checkBox);
@@ -61,6 +55,13 @@ export class TaskDiv {
     detailsArray.forEach((detail, index) => {
       const detailElement = document.createElement("div");
       detailElement.textContent = detail;
+      detailElement.dataset.detailType = [
+        "title",
+        "description",
+        "dueDate",
+        "priority",
+        "project",
+      ][index];
       this.element.appendChild(detailElement);
     });
 

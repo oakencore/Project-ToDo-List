@@ -26,15 +26,31 @@ const storageFunctions = {
     };
     localStorage.setItem(taskId, JSON.stringify(taskData));
   },
-
   clearLocalStorage() {
     localStorage.clear();
   },
 
   // Remove task from localStorage by taskID
   completeTaskAndRemove(taskId) {
-    localStorage.removeItem(taskId);
-    console.log(`Task with ID ${taskId} has been removed from storage.`);
+    // Log the task ID before removal
+    console.log(
+      `completeTaskAndRemove: Attempting to remove task with ID: ${taskId} from storage.`
+    );
+    // Check if the task exists in localStorage before removal
+    const taskExists = localStorage.getItem(taskId);
+    if (taskExists) {
+      // Remove the task from localStorage
+      localStorage.removeItem(taskId);
+      // refresh projects div
+      this.displayProjectNames();
+      //DOM Manipulate
+      const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+      if (taskElement) {
+        taskElement.remove();
+      } else {
+        console.warn("Task element not found in DOM for removal");
+      }
+    }
   },
 
   populateDummyLocalStorage(numberOfObjects) {
@@ -55,11 +71,9 @@ const storageFunctions = {
         project: "example project",
         parentElementId: "inboxContainerDiv",
       };
-
       const existingTaskElement = document.querySelector(
         `[data-task-id="${taskId}"]`
       );
-
       if (!existingTaskElement) {
         const newTaskDiv = new TaskDiv(taskDetails);
         storageFunctions.storeLocally(taskDetails);
@@ -123,10 +137,12 @@ const storageFunctions = {
     const projectsContainerDiv = document.getElementById(
       "projectsContainerDiv"
     );
+    const parsedTasks = this.parsedStorage();
     // Clear existing projects
     projectsContainerDiv.innerHTML = "";
-    const tasks = this.parsedStorage();
-    const projects = new Set(Object.values(tasks).map((task) => task.project));
+    const projects = new Set(
+      Object.values(parsedTasks).map((task) => task.project)
+    );
     projects.forEach((project) => {
       if (project) {
         const projectDiv = document.createElement("div");
@@ -134,9 +150,9 @@ const storageFunctions = {
         projectDiv.classList.add("project-name");
         stylingFunctions.projectNameStyling(projectDiv);
         projectsContainerDiv.appendChild(projectDiv);
-        projectDiv.addEventListener("click", () =>
-          clickActions.showProjectTasks(project)
-        );
+        projectDiv.addEventListener("click", () => {
+          clickActions.showProjectTasks(project, parsedTasks);
+        });
       }
     });
   },
@@ -145,7 +161,11 @@ const storageFunctions = {
     const taskValue = localStorage.getItem(taskId);
     if (taskValue) {
       const task = JSON.parse(taskValue);
-      const updatedTask = { ...task, ...newDetails };
+      // Copy task
+      const updatedTask = JSON.parse(JSON.stringify(task));
+      // update copied task
+      Object.assign(updatedTask, newDetails);
+      console.log("Updated Task (before save", updatedTask);
       localStorage.setItem(taskId, JSON.stringify(updatedTask));
       console.log(`Task with ID ${taskId} has been updated.`);
     } else {
@@ -167,33 +187,79 @@ const storageFunctions = {
     }
   },
 
-  updateTask(taskId, newDetails) {
-    const taskValue = localStorage.getItem(taskId);
-    if (taskValue) {
-      const task = JSON.parse(taskValue);
-      const updatedTask = { ...task, ...newDetails };
-      localStorage.setItem(taskId, JSON.stringify(updatedTask));
-    } else {
-      console.log(
-        `Task with ID ${taskId} does not exist and cannot be updated.`
-      );
-    }
-  },
   refreshTasksDisplay() {
     const inboxContainerDiv = document.getElementById("inboxContainerDiv");
-    // Select and remove only the task elements. Used the class of task-item I added to each task.
     const taskElements = inboxContainerDiv.querySelectorAll(".task-item");
-    taskElements.forEach((element) => element.remove());
-
-    // Repopulate tasks from localStorage
     const tasks = this.parsedStorage();
-    Object.values(tasks).forEach((task) => {
+    console.log(
+      "refreshTasksDisplay: Tasks retrieved from localStorage:",
+      tasks
+    );
+
+    // Update existing tasks
+    taskElements.forEach((taskElement) => {
+      const taskId = taskElement.dataset.taskId;
+      const correspondingTask = tasks[taskId];
+
+      if (correspondingTask) {
+        const titleElement = taskElement.querySelector(
+          "[data-detail-type='title']"
+        );
+        if (titleElement) {
+          titleElement.textContent = correspondingTask.title;
+        }
+
+        const descriptionElement = taskElement.querySelector(
+          "[data-detail-type='description']"
+        );
+        if (descriptionElement) {
+          descriptionElement.textContent = correspondingTask.description;
+        }
+
+        const dueDateElement = taskElement.querySelector(
+          "[data-detail-type='dueDate']"
+        );
+        if (dueDateElement) {
+          dueDateElement.textContent = correspondingTask.dueDate;
+        }
+
+        const priorityElement = taskElement.querySelector(
+          "[data-detail-type='priority']"
+        );
+        if (priorityElement) {
+          priorityElement.textContent = correspondingTask.priority;
+        }
+
+        const projectElement = taskElement.querySelector(
+          "[data-detail-type='project']"
+        );
+        if (projectElement) {
+          projectElement.textContent = correspondingTask.project;
+        }
+      } else {
+        console.log(
+          "refreshTasksDisplay: Task not found in localStorage:",
+          taskId
+        );
+      }
+    });
+
+    // Create new tasks
+    const localStorageTaskIds = Object.keys(tasks);
+    const domTaskIds = Array.from(taskElements).map((el) => el.dataset.taskId);
+    const newTaskIds = localStorageTaskIds.filter(
+      (id) => !domTaskIds.includes(id)
+    );
+
+    newTaskIds.forEach((taskId) => {
+      const newTask = tasks[taskId];
       new TaskDiv({
-        title: task.title,
-        description: task.description,
-        dueDate: task.dueDate,
-        priority: task.priority,
-        project: task.project,
+        taskId,
+        title: newTask.title,
+        description: newTask.description,
+        dueDate: newTask.dueDate,
+        priority: newTask.priority,
+        project: newTask.project,
         parentElementId: "inboxContainerDiv",
       });
     });
@@ -214,14 +280,11 @@ const storageFunctions = {
       console.error("inboxContainerDiv not found in the DOM");
       return;
     }
-
     // Select and remove only elements with the class 'task-item'
     const taskItems = tasksContainer.querySelectorAll(".task-item");
     taskItems.forEach((item) => item.remove());
-
     // Load tasks from localStorage
     const tasks = storageFunctions.parsedStorage();
-
     Object.keys(tasks).forEach((key) => {
       const taskDetails = tasks[key];
       new TaskDiv({ ...taskDetails, parentElementId: "inboxContainerDiv" });

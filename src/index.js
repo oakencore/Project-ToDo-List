@@ -1,7 +1,6 @@
-import { loadInitalContent } from "./loadInitialContent.js";
-import { ClickActions } from "./clickActions.js";
+import { loadInitialContent } from "./loadInitialContent.js";
 
 document.addEventListener("DOMContentLoaded", (event) => {
-  loadInitalContent();
+  loadInitialContent();
   console.log("Page Content Loaded!");
 });

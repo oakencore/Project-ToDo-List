@@ -1,10 +1,19 @@
 import { storageFunctions } from "./storageFunctions.js";
 import { TaskDiv } from "./TaskDiv.js";
+import {formFunctions, handleFormSubmission} from "./formFunctions.js"
 
 class ClickActions {
   constructor() {
-    this.bindMethods();
     this.setupListeners();
+    this.bindMethods();
+  }
+
+  setupListeners() {
+    this.setupMenuTabListeners();
+    this.setupProjectTabListeners();
+    this.setupTaskClickListeners();
+    this.setupAddTaskPromptListener();
+    this.setupCloseIconDivListener();
   }
 
   bindMethods() {
@@ -15,21 +24,15 @@ class ClickActions {
       "handleTaskEditClick",
       "showProjectTasks",
       "setupAndPopulateTaskEditorForm",
-      "handleFormSubmission",
       "createLabel",
       "createSaveButton",
       "handleAddTaskPromptClick",
       "setupProjectTabListeners",
       "setupAddTaskPromptListener",
+      "clearProjectTasksExceptTitle",
+      "handleCloseIconDivClick",
     ];
     methods.forEach((method) => (this[method] = this[method].bind(this)));
-  }
-
-  setupListeners() {
-    this.setupMenuTabListeners();
-    this.setupProjectTabListeners();
-    this.setupTaskClickListeners();
-    this.setupAddTaskPromptListener();
   }
 
   setupMenuTabListeners() {
@@ -55,12 +58,24 @@ class ClickActions {
   }
 
   setupAddTaskPromptListener() {
-    const addTaskPrompt = document.getElementById("addTaskPrompt");
-    if (addTaskPrompt) {
-      addTaskPrompt.addEventListener("click", this.handleAddTaskPromptClick);
-    } else {
-      console.error("addTaskPrompt element not found!");
-    }
+    const attemptToAttachListener = () => {
+      const addTaskPrompt = document.getElementById("addTaskPrompt");
+      if (addTaskPrompt) {
+        addTaskPrompt.addEventListener("click", this.handleAddTaskPromptClick);
+        clearInterval(checkInterval);
+      } else {
+        console.log("Waiting for addTaskPrompt element...");
+      }
+    };
+
+    const checkInterval = setInterval(attemptToAttachListener, 100);
+
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      console.warn(
+        "Stopped checking for addTaskPrompt - element not found within timeout."
+      );
+    }, 5000);
   }
 
   setSectionVisibility(sectionId, show) {
@@ -70,6 +85,7 @@ class ClickActions {
 
   handleAddTaskPromptClick() {
     this.setSectionVisibility("taskCreatorDiv", true);
+    this.setSectionVisibility("inboxContainerDiv", false);
   }
 
   showInbox() {
@@ -84,7 +100,21 @@ class ClickActions {
     this.toggleSections("week");
   }
 
+  clearProjectTasksExceptTitle(containerId) {
+    const container = document.getElementById(containerId);
+    const titleElement = container.querySelector(".project-title"); // Assuming title has a "project-title" class
+
+    // Clear all child elements except the title
+    if (titleElement) {
+      container.innerHTML = "";
+      container.appendChild(titleElement);
+    } else {
+      container.innerHTML = ""; // If no title, clear everything
+    }
+  }
+
   showProjectTasks(projectName) {
+    console.log("This is", this, "in showProjectTasks.");
     this.toggleSections("projectsMainContainer");
     const projectsMainContainer = document.getElementById(
       "projectsMainContainer"
@@ -116,19 +146,68 @@ class ClickActions {
   setupTaskClickListeners() {
     const tasksContainer = document.getElementById("inboxContainerDiv");
     tasksContainer?.addEventListener("click", (e) => {
-      const taskItem = e.target.closest(".task-item");
-      if (!taskItem || e.target.type === "checkbox") return;
-      this.handleTaskEditClick(taskItem.dataset.taskId);
+      // find parent!
+      const taskItem = e.target.closest("[data-task-id]");
+      console.log("Task item found:", taskItem);
+      // Exit if no taskitem found
+      if (!taskItem) return;
+
+      if (e.target.type === "checkbox") {
+        const taskId = taskItem.dataset.taskId;
+        console.log("Checkbox Clicked: Found dataset.taskId:", taskId);
+        storageFunctions.completeTaskAndRemove(taskId);
+        // Stop bubbling up
+        Event.stopPropagation();
+      } else {
+        console.log("Task item clicked (not checkbox). Opening edit form...");
+        // dataset.taskId means it's taking the string
+        const taskId = taskItem.dataset.taskId;
+        this.handleTaskEditClick(taskId);
+      }
+    });
+  }
+
+  handleCheckboxClick(taskId) {
+    console.log("Task ID targeted for removal:", taskId);
+
+    storageFunctions.completeTaskAndRemove(taskId, (result) => {
+      console.log("completeTaskAndRemove result:", result);
+
+      if (result) {
+        console.log("Task successfully removed from localStorage");
+        storageFunctions.refreshTasksDisplay();
+        storageFunctions.displayProjectNames();
+      } else {
+        console.error("Failed to remove task from localStorage");
+      }
     });
   }
 
   handleTaskEditClick(taskId) {
     this.setSectionVisibility("taskEditorDiv", true);
     this.setupAndPopulateTaskEditorForm(taskId);
+    this.setSectionVisibility("inboxContainerDiv", false);
+  }
+
+  setupCloseIconDivListener() {
+    console.log("setupClosIconDivListener called");
+    const closeIconDiv = document.querySelector("#closeDiv");
+    if (closeIconDiv) {
+      console.log("Close icon div found! Attaching listener...");
+      closeIconDiv.addEventListener("click", this.handleCloseIconDivClick);
+    } else {
+      console.error("setupCloseIconDivListener: CloseDiv not found!");
+    }
+  }
+
+  handleCloseIconDivClick() {
+    console.log("Close icon div clicked.");
+    this.showInbox();
   }
 
   createFormFields(fields) {
     return fields.map((field) => {
+      console.log("Creating field:", field);
       const div = document.createElement("div");
       div.appendChild(this.createLabel(field.label, field.id));
       div.appendChild(this.createInput(field));
@@ -165,9 +244,8 @@ class ClickActions {
     ).forEach((field) => form.appendChild(field));
     form.appendChild(this.createSaveButton());
     taskEditorDiv.appendChild(form);
-    form.addEventListener("submit", (event) =>
-      this.handleFormSubmission(event, taskId)
-    );
+    const taskIdValue = document.getElementById("taskId").value;  
+    const title = document.getElementById("title").value.trim();
   }
 
   createSaveButton() {
@@ -175,14 +253,6 @@ class ClickActions {
     button.textContent = "Save Changes";
     button.type = "submit";
     return button;
-  }
-
-  handleFormSubmission(event, taskId) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    storageFunctions.updateTask(taskId, Object.fromEntries(formData));
-    storageFunctions.refreshTasksDisplay();
-    document.getElementById("taskEditorDiv").style.display = "none";
   }
 }
 const clickActions = new ClickActions();

@@ -69,58 +69,66 @@ const formFunctions = {
     form.appendChild(submitBtn);
   },
 
-  handleFormSubmission(form, taskCreatorDiv) {
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
+  handleFormSubmission(event) {
+    console.log("handleFormSubmission executed! - version 1");
+    console.log("About to start form submission logic...");
+  
+    // Extract form values, including taskId
+    const taskId = document.getElementById("taskId").value;
+    console.log("Task ID is:", taskId);
+  
+    const title = document.getElementById("title").value.trim();
+    console.log("Form title value is:", title);
+  
+    const description = document.getElementById("description").value.trim();
+    console.log("Form description value is:", description);
+  
+    const dueDate = document.getElementById("dueDate").value;
+    const priority = document.getElementById("priority").value;
+    const notes = document.getElementById("notes").value.trim();
+    const project = document.getElementById("project").value.trim();
+  
+    const taskDetails = {
+      taskId,
+      title,
+      description,
+      dueDate,
+      priority,
+      notes,
+      project
+    };
 
-      // Check if existing task or a new one
-      let taskId = document.getElementById("taskId").value;
-      if (!taskId) {
-        // If no taskId, generate a new one
-        taskId = uuidv4();
-      }
-
-      // Extract form values, now including taskId in the taskDetails object
-      const title = document.getElementById("title").value.trim();
-      const description = document.getElementById("description").value.trim();
-      const dueDate = document.getElementById("dueDate").value;
-      const priority = document.getElementById("priority").value;
-      const notes = document.getElementById("notes").value.trim();
-      const project = document.getElementById("project").value.trim();
-
-      const taskDetails = {
-        taskId,
-        title,
-        description,
-        dueDate,
-        priority,
-        notes,
-        project,
-      };
-
-      // Choice: update existing task or create a new one
-      if (document.getElementById("taskId").value) {
-        // Existing task update
-        storageFunctions.updateTask(taskId, taskDetails);
-      } else {
-        // New task creation
-        storageFunctions.storeLocally(taskDetails);
-      }
-
-      // Refresh tasks display and reset form
-      storageFunctions.refreshTasksDisplay();
-
-      storageFunctions.displayProjectNames();
-
-      // Show inbox
-      clickActions.showInbox()
-
-      form.reset();
-      document.getElementById("taskId").value = "";
-      taskCreatorDiv.style.display = "none";
-    });
+    console.log("Form data extracted:", taskDetails); 
+    // Check if task exists in localStorage
+    const existingTask = storageFunctions.getTaskDetails(taskId);
+    console.log("Result of getTaskDetails():", existingTask);
+  
+    // Update or Create task
+    if (existingTask) {
+      console.log("Existing task found. Calling storageFunctions.updateTask()");
+      debugger;
+      storageFunctions.updateTask(taskId, taskDetails);
+    } else {
+      console.log("New task detected. Calling storageFunctions.storeLocally()");
+      debugger; 
+      storageFunctions.storeLocally(taskDetails);
+      console.log("Newly added task:", taskDetails);
+      console.log("Tasks in localStorage:", localStorage);
+    }
+  
+    // Refresh display, reset form, hide creator
+    storageFunctions.refreshTasksDisplay();
+    storageFunctions.displayProjectNames();
+    clickActions.showInbox();
+  
+    form.reset();
+    document.getElementById("taskId").value = "";
+    taskCreatorDiv.style.display = "none";
+  
+    // Re-setup checkbox listeners
+    clickActions.setupTaskClickListeners();
   },
-
+  
   createInputField(
     labelText,
     inputType,
@@ -163,6 +171,7 @@ const formFunctions = {
       right: "10px",
       cursor: "pointer",
     });
+    console.log("Close icon div created");
     return closeDiv;
   },
   createCheckbox() {

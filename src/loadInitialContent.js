@@ -1,5 +1,7 @@
+import { clickActions } from "./clickActions.js";
 import { divOrganiser } from "./interface.js";
 // Function to initialise page content
-export function loadInitalContent() {
+export function loadInitialContent() {
   divOrganiser();
+  clickActions.setupListeners();
 }

@@ -1,9 +1,6 @@
-import { clickActions } from "./clickActions.js";
-import { addClickListenerToDiv } from "./listeners.js";
 import { stylingFunctions } from "./stylingFunctions.js";
 import { storageFunctions } from "./storageFunctions.js";
 import { formFunctions } from "./formFunctions.js";
-import { TaskDiv } from "./TaskDiv.js";
 
 export function divOrganiser() {
   stylingFunctions.loadFontAwesome();
@@ -31,8 +28,7 @@ export function divOrganiser() {
   setupProjectsSection(menuPanel);
   setupProjectsMainContainerDivCreation(inbox);
   // Load Tasks from Local Storage
-  storageFunctions.populateDummyLocalStorage(1
-    );
+  // storageFunctions.populateDummyLocalStorage(1);
   storageFunctions.loadTasksFromLocalStorage();
   // Display todays tasks
   storageFunctions.displayTodaysTasks();
@@ -188,7 +184,6 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   // Add close icon div and append to the taskcreatordiv
   const closeIconDiv = formFunctions.createCloseIconDiv();
   taskCreatorDiv.appendChild(closeIconDiv);
-  // TODO newtaskcreatorprompt was removed.
   // closeIconDiv.addEventListener("click", clickActions.NewTaskCreatorPrompt);
   taskCreatorDiv.appendChild(form);
 }
@@ -338,5 +333,3 @@ export function createDivWithText(
 
   return newDiv;
 }
-
-
