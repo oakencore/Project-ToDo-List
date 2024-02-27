@@ -1,6 +1,7 @@
 import { TaskDiv } from "./TaskDiv";
 import {
   parseJSON,
+  parseISO,
   isToday,
   isWithinInterval,
   addDays,
@@ -57,7 +58,7 @@ const storageFunctions = {
     this.clearLocalStorage();
 
     for (let i = 0; i < numberOfObjects; i++) {
-      const dueDate = formatISO(new Date(2024, 1, 20), {
+      const dueDate = formatISO(new Date(2024, 1, 27), {
         representation: "date",
       });
       const taskId = uuidv4();
@@ -103,14 +104,29 @@ const storageFunctions = {
 
   getTodaysTasks() {
     const tasks = this.parsedStorage();
-    return Object.values(tasks).filter((task) =>
-      isToday(parseJSON(task.dueDate))
-    );
+
+    const currentDate = new Date();
+
+    const tasksDueToday = Object.values(tasks).filter((task) => {
+      const dueDate = parseISO(task.dueDate);
+
+      return isToday(dueDate);
+    });
+
+    return tasksDueToday;
   },
 
   displayTodaysTasks() {
     const tasksDueToday = this.getTodaysTasks();
+    console.log("tasksDueToday:", tasksDueToday);
+
+    const todayContainerDiv = document.getElementById("todayContainerDiv");
+    const existingTasks = todayContainerDiv.querySelectorAll(".task-item");
+    existingTasks.forEach((task) => task.remove());
+
+    // Append new tasks
     tasksDueToday.forEach((task) => {
+      console.log("Processing task:", task);
       new TaskDiv({ ...task, parentElementId: "todayContainerDiv" });
     });
   },
@@ -118,16 +134,29 @@ const storageFunctions = {
   getWeekTasks() {
     const tasks = this.parsedStorage();
     const today = startOfDay(new Date());
-    const endOfWeek = addDays(today, 7);
-    return Object.values(tasks).filter((task) =>
-      isWithinInterval(parseJSON(task.dueDate), {
+    // 7 days in total, starting from today but starts at 6
+    const endOfWeek = addDays(today, 6); 
+  
+    const tasksDueThisWeek = Object.values(tasks).filter((task) => {
+      const dueDate = parseISO(task.dueDate);
+  
+      return isWithinInterval(dueDate, {
         start: today,
         end: endOfWeek,
-      })
-    );
+      });
+    });
+  
+    return tasksDueThisWeek;
   },
+  
+
   displayWeekTasks() {
     const tasksDueWeek = this.getWeekTasks();
+    const weekContainerDiv = document.getElementById("weekContainerDiv");
+
+    const existingTasks = weekContainerDiv.querySelectorAll(".task-item");
+    existingTasks.forEach((task) => task.remove());
+
     tasksDueWeek.forEach((task) => {
       new TaskDiv({ ...task, parentElementId: "weekContainerDiv" });
     });
@@ -182,86 +211,64 @@ const storageFunctions = {
       const taskDetails = localStorageItems[taskId];
       return taskDetails;
     } else {
-      console.log("getTaskDetails: There was no taskID");
+      console.error(
+        "getTaskDetails: There was no taskID. TaskID is: " + taskId
+      );
       return null;
     }
   },
 
   refreshTasksDisplay() {
     const inboxContainerDiv = document.getElementById("inboxContainerDiv");
-    const taskElements = inboxContainerDiv.querySelectorAll(".task-item");
+    // Retrieve updated tasks from local storage
     const tasks = this.parsedStorage();
     console.log(
       "refreshTasksDisplay: Tasks retrieved from localStorage:",
       tasks
     );
 
-    // Update existing tasks
-    taskElements.forEach((taskElement) => {
-      const taskId = taskElement.dataset.taskId;
-      const correspondingTask = tasks[taskId];
+    // Identify all currently displayed tasks
+    const displayedTaskIds = new Set(
+      [...inboxContainerDiv.querySelectorAll(".task-item")].map(
+        (task) => task.dataset.taskId
+      )
+    );
 
-      if (correspondingTask) {
-        const titleElement = taskElement.querySelector(
-          "[data-detail-type='title']"
+    // Remove tasks no longer present in local storage
+    displayedTaskIds.forEach((taskId) => {
+      if (!tasks[taskId]) {
+        const taskElement = inboxContainerDiv.querySelector(
+          `[data-task-id="${taskId}"]`
         );
-        if (titleElement) {
-          titleElement.textContent = correspondingTask.title;
-        }
-
-        const descriptionElement = taskElement.querySelector(
-          "[data-detail-type='description']"
-        );
-        if (descriptionElement) {
-          descriptionElement.textContent = correspondingTask.description;
-        }
-
-        const dueDateElement = taskElement.querySelector(
-          "[data-detail-type='dueDate']"
-        );
-        if (dueDateElement) {
-          dueDateElement.textContent = correspondingTask.dueDate;
-        }
-
-        const priorityElement = taskElement.querySelector(
-          "[data-detail-type='priority']"
-        );
-        if (priorityElement) {
-          priorityElement.textContent = correspondingTask.priority;
-        }
-
-        const projectElement = taskElement.querySelector(
-          "[data-detail-type='project']"
-        );
-        if (projectElement) {
-          projectElement.textContent = correspondingTask.project;
-        }
-      } else {
-        console.log(
-          "refreshTasksDisplay: Task not found in localStorage:",
-          taskId
-        );
+        taskElement.remove();
       }
     });
 
-    // Create new tasks
-    const localStorageTaskIds = Object.keys(tasks);
-    const domTaskIds = Array.from(taskElements).map((el) => el.dataset.taskId);
-    const newTaskIds = localStorageTaskIds.filter(
-      (id) => !domTaskIds.includes(id)
-    );
-
-    newTaskIds.forEach((taskId) => {
-      const newTask = tasks[taskId];
-      new TaskDiv({
-        taskId,
-        title: newTask.title,
-        description: newTask.description,
-        dueDate: newTask.dueDate,
-        priority: newTask.priority,
-        project: newTask.project,
-        parentElementId: "inboxContainerDiv",
-      });
+    // Update existing tasks and add new ones
+    Object.entries(tasks).forEach(([taskId, taskDetails]) => {
+      const taskElement = inboxContainerDiv.querySelector(
+        `[data-task-id="${taskId}"]`
+      );
+      if (taskElement) {
+        // Update existing task elements
+        taskElement.querySelector("[data-detail-type='title']").textContent =
+          taskDetails.title;
+        taskElement.querySelector(
+          "[data-detail-type='description']"
+        ).textContent = taskDetails.description;
+        taskElement.querySelector("[data-detail-type='dueDate']").textContent =
+          taskDetails.dueDate;
+        taskElement.querySelector("[data-detail-type='priority']").textContent =
+          taskDetails.priority;
+        taskElement.querySelector("[data-detail-type='project']").textContent =
+          taskDetails.project;
+      } else {
+        // Add new task elements
+        new TaskDiv({
+          ...taskDetails,
+          parentElementId: "inboxContainerDiv",
+        });
+      }
     });
   },
 
@@ -280,14 +287,27 @@ const storageFunctions = {
       console.error("inboxContainerDiv not found in the DOM");
       return;
     }
-    // Select and remove only elements with the class 'task-item'
+
+    // Clearing task items
     const taskItems = tasksContainer.querySelectorAll(".task-item");
     taskItems.forEach((item) => item.remove());
-    // Load tasks from localStorage
+
     const tasks = storageFunctions.parsedStorage();
+
     Object.keys(tasks).forEach((key) => {
       const taskDetails = tasks[key];
-      new TaskDiv({ ...taskDetails, parentElementId: "inboxContainerDiv" });
+
+      // TaskId exists
+      if (!taskDetails.taskId) {
+        taskDetails.taskId = uuidv4();
+      }
+
+      // Create taskDiv.
+      const taskDiv = new TaskDiv({
+        ...taskDetails,
+        parentElementId: "inboxContainerDiv",
+      });
+      taskDiv.getElement().dataset.taskId = taskDetails.taskId;
     });
   },
 };

@@ -3,6 +3,7 @@ import { stylingFunctions } from "./stylingFunctions.js";
 import { storageFunctions } from "./storageFunctions.js";
 import { clickActions } from "./clickActions.js";
 import { v4 as uuidv4 } from "uuid";
+import { TaskDiv } from "./TaskDiv.js";
 
 const formFunctions = {
   initialiseTaskForm(taskCreatorDiv) {
@@ -31,7 +32,7 @@ const formFunctions = {
     return form;
   },
 
-  addInputFieldsToForm(form) {
+  addInputFieldsToForm(form, taskDetails = {}) {
     const fields = [
       { label: "Title:", type: "text", id: "title", required: true },
       { label: "Due Date:", type: "date", id: "dueDate", required: true },
@@ -46,17 +47,19 @@ const formFunctions = {
       { label: "Project:", type: "text", id: "project" },
     ];
 
-    fields.forEach((field) =>
+    fields.forEach((field) => {
+      const fieldValue = taskDetails[field.id] || "";
       form.appendChild(
         this.createInputField(
           field.label,
           field.type,
           field.id,
           field.required,
-          field.options
+          field.options,
+          fieldValue
         )
-      )
-    );
+      );
+    });
   },
 
   appendSubmitButtonToForm(form) {
@@ -70,24 +73,22 @@ const formFunctions = {
   },
 
   handleFormSubmission(event) {
-    console.log("handleFormSubmission executed! - version 1");
-    console.log("About to start form submission logic...");
-  
-    // Extract form values, including taskId
-    const taskId = document.getElementById("taskId").value;
-    console.log("Task ID is:", taskId);
-  
-    const title = document.getElementById("title").value.trim();
-    console.log("Form title value is:", title);
-  
-    const description = document.getElementById("description").value.trim();
-    console.log("Form description value is:", description);
-  
-    const dueDate = document.getElementById("dueDate").value;
-    const priority = document.getElementById("priority").value;
-    const notes = document.getElementById("notes").value.trim();
-    const project = document.getElementById("project").value.trim();
-  
+    event.preventDefault();
+    const form = event.target;
+
+    let taskId = form.elements["taskId"].value;
+    if (!taskId) {
+      taskId = uuidv4();
+      form.elements["taskId"].value = taskId;
+    }
+
+    const title = form.elements["title"].value.trim();
+    const description = form.elements["description"].value.trim();
+    const dueDate = form.elements["dueDate"].value;
+    const priority = form.elements["priority"].value;
+    const notes = form.elements["notes"].value.trim();
+    const project = form.elements["project"].value.trim();
+
     const taskDetails = {
       taskId,
       title,
@@ -95,46 +96,43 @@ const formFunctions = {
       dueDate,
       priority,
       notes,
-      project
+      project,
     };
 
-    console.log("Form data extracted:", taskDetails); 
-    // Check if task exists in localStorage
     const existingTask = storageFunctions.getTaskDetails(taskId);
-    console.log("Result of getTaskDetails():", existingTask);
-  
-    // Update or Create task
     if (existingTask) {
-      console.log("Existing task found. Calling storageFunctions.updateTask()");
-      debugger;
       storageFunctions.updateTask(taskId, taskDetails);
     } else {
-      console.log("New task detected. Calling storageFunctions.storeLocally()");
-      debugger; 
-      storageFunctions.storeLocally(taskDetails);
-      console.log("Newly added task:", taskDetails);
-      console.log("Tasks in localStorage:", localStorage);
+      this.createNewTask(taskDetails);
     }
-  
-    // Refresh display, reset form, hide creator
+
     storageFunctions.refreshTasksDisplay();
+
     storageFunctions.displayProjectNames();
+
     clickActions.showInbox();
-  
+
     form.reset();
-    document.getElementById("taskId").value = "";
-    taskCreatorDiv.style.display = "none";
-  
-    // Re-setup checkbox listeners
+    document.getElementById("taskCreatorDiv").style.display = "none";
+
     clickActions.setupTaskClickListeners();
   },
-  
+
+  createNewTask(taskDetails) {
+    console.log("New task detected. Creating a new TaskDiv...");
+
+    const newTaskDiv = new TaskDiv(taskDetails, "inboxContainerDiv");
+
+    storageFunctions.storeLocally(taskDetails);
+  },
+
   createInputField(
     labelText,
     inputType,
     inputName,
     isRequired = false,
-    options = null
+    options = null,
+    fieldValue = ""
   ) {
     const wrapper = document.createElement("div");
     const label = document.createElement("label");
@@ -149,11 +147,13 @@ const formFunctions = {
         const optionElement = document.createElement("option");
         optionElement.value = option;
         optionElement.textContent = option;
+        if (fieldValue === option) optionElement.selected = true;
         input.appendChild(optionElement);
       });
     } else {
       input = document.createElement("input");
       input.type = inputType;
+      input.value = fieldValue;
     }
 
     input.id = inputName;
@@ -163,6 +163,7 @@ const formFunctions = {
 
     return wrapper;
   },
+
   createCloseIconDiv() {
     const closeDiv = createDivWithText("", "closeDiv", "fas fa-times");
     Object.assign(closeDiv.style, {

@@ -14,6 +14,7 @@ export class TaskDiv {
   }) {
     // Task ID must be provided or provide a new UNIQUE!one
     this.id = taskId || uuidv4();
+    this.parentElementId = parentElementId;
 
     this.title = title;
     this.description = description;
@@ -35,7 +36,7 @@ export class TaskDiv {
     this.element.id = this.id;
     this.element.classList.add("task-item");
     this.element.dataset.taskId = this.id;
-    console.log("TaskDiv Constructor: Set dataset.taskId to:", this.id);
+
 
     // Create and append a checkbox to the task.
     const checkBox = formFunctions.createCheckbox();

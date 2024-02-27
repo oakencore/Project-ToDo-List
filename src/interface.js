@@ -15,10 +15,10 @@ export function divOrganiser() {
   const menuPanel = setupMenuPanel(contentContainer);
   // Inbox
   const { inbox } = setupInbox(contentContainer);
+    // Task Editor
+    setupTaskEditorDiv(inbox);
   // Task Creator
   setupTaskCreatorDiv(inbox);
-  // Task Editor
-  setupTaskEditorDiv(inbox);
 
   // Today
   setupTodaySection(inbox);
@@ -28,7 +28,7 @@ export function divOrganiser() {
   setupProjectsSection(menuPanel);
   setupProjectsMainContainerDivCreation(inbox);
   // Load Tasks from Local Storage
-  // storageFunctions.populateDummyLocalStorage(1);
+  storageFunctions.populateDummyLocalStorage(2);
   storageFunctions.loadTasksFromLocalStorage();
   // Display todays tasks
   storageFunctions.displayTodaysTasks();
@@ -62,7 +62,7 @@ function headerCreation() {
 function setupHeader(mainDiv) {
   const header = mainDiv.appendChild(headerCreation());
   stylingFunctions.headerStyling(header);
-  header.appendChild(createDivWithText("DO IT!", "headerText"));
+  header.appendChild(createDivWithText("TaskDiv Supreme", "headerText"));
   stylingFunctions.headerTextStyling();
 }
 
@@ -179,12 +179,17 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   const form = formFunctions.createForm();
   formFunctions.addInputFieldsToForm(form);
   formFunctions.appendSubmitButtonToForm(form);
-  formFunctions.handleFormSubmission(form, taskCreatorDiv);
+
+  //Add event listener to submit button
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    formFunctions.handleFormSubmission(event);
+  });
 
   // Add close icon div and append to the taskcreatordiv
   const closeIconDiv = formFunctions.createCloseIconDiv();
   taskCreatorDiv.appendChild(closeIconDiv);
-  // closeIconDiv.addEventListener("click", clickActions.NewTaskCreatorPrompt);
+
   taskCreatorDiv.appendChild(form);
 }
 

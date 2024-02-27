@@ -8,7 +8,10 @@ const stylingFunctions = {
     document.body.style.padding = "0";
     document.body.style.minHeight = "100vh";
     document.body.style.display = "flex";
+    document.body.style.flexDirection = "column";
     document.body.style.fontFamily = "'Roboto', sans-serif";
+    document.body.style.backgroundColor = "#f5f5f5";
+    document.documentElement.style.height = "100%";
   },
 
   newTaskStyling(newTask) {
@@ -16,24 +19,39 @@ const stylingFunctions = {
     newTask.style.flexDirection = "row";
     newTask.style.alignItems = "center";
     newTask.style.marginTop = "10px";
-    newTask.style.padding = "5px";
+    newTask.style.padding = "15px";
     newTask.style.gap = "10px";
-    newTask.style.backgroundColor = TaskDiv.counter % 2 === 0 ? "#6b6a66" : "#8a8986";
-    newTask.style.borderRadius = "5px";
+    newTask.style.backgroundColor = "#FFFFFF";
+    newTask.style.border = "1px solid #E0E0E0";
+    newTask.style.borderRadius = "8px";
+    newTask.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
+    newTask.style.transition = "transform 0.2s ease";
+    // Hover
+    newTask.addEventListener(
+      "mouseenter",
+      () => (newTask.style.transform = "scale(1.02)")
+    );
+    newTask.addEventListener(
+      "mouseleave",
+      () => (newTask.style.transform = "scale(1.00)")
+    );
   },
 
   mainDivContainerStyling(mainDiv) {
-    mainDiv.style.display = "flex";
-    mainDiv.style.flexDirection = "column";
-    mainDiv.style.flexGrow = 1;
+    mainDiv.style.margin = "0 auto"; 
+    mainDiv.style.maxWidth = "1200px"; 
+    mainDiv.style.width = "100%"; 
+    mainDiv.style.overflow = "hidden"; 
   },
 
   headerStyling(header) {
     header.style.display = "flex";
     header.style.flexDirection = "row";
-    header.style.backgroundColor = "#4b4453";
+    header.style.backgroundColor = "#3f51b5";
     header.style.width = "100%";
     header.style.height = "70px";
+    header.style.padding = "0 20px";
+    header.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
   },
 
   headerTextStyling() {
@@ -42,120 +60,132 @@ const stylingFunctions = {
     headerText.style.flexDirection = "row";
     headerText.style.justifyContent = "center";
     headerText.style.alignItems = "center";
-    headerText.style.paddingLeft = "30px";
-    headerText.style.fontSize = "45px";
-    headerText.style.color = "#c34a36";
+    headerText.style.width = "100%";
+    headerText.style.fontSize = "2rem";
+    headerText.style.color = "#FFFFFF";
   },
 
   contentContainerStyling(contentContainer) {
+    contentContainer.style.width = "100%";
     contentContainer.style.display = "flex";
     contentContainer.style.flexDirection = "row";
     contentContainer.style.justifyContent = "space-between";
-    contentContainer.style.flexGrow = 1;
+    contentContainer.style.padding = "20px"; 
+    contentContainer.style.boxSizing = "border-box";
   },
 
   menuPanelStyling(menuPanel) {
     menuPanel.style.flexGrow = 1;
     menuPanel.style.display = "flex";
     menuPanel.style.flexDirection = "column";
-    menuPanel.style.justifyContent = "center";
-    menuPanel.style.backgroundColor = "grey";
-    menuPanel.style.width = "20%";
-    menuPanel.style.height = "auto";
+    menuPanel.style.justifyContent = "flex-start";
+    menuPanel.style.backgroundColor = "#FFFFFF";
+    menuPanel.style.width = "250px";
+    menuPanel.style.marginRight = "20px";
     menuPanel.style.padding = "20px";
+    menuPanel.style.borderRadius = "8px";
+    menuPanel.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
   },
 
   menuPanelDivContainerStyling() {
     const menuPanelContainer = document.getElementById("menuPanelDivContainer");
     menuPanelContainer.style.display = "flex";
     menuPanelContainer.style.flexDirection = "column";
-    menuPanelContainer.style.justifyContent = "space-between";
-    menuPanelContainer.style.marginBottom = "30px";
     menuPanelContainer.style.gap = "15px";
   },
 
   menuPanelDivCreationProjectsTitleStyling() {
-    const menuPanelContainerProjects = document.getElementById("projectsTitleTextDiv");
+    const menuPanelContainerProjects = document.getElementById(
+      "projectsTitleTextDiv"
+    );
     menuPanelContainerProjects.style.display = "flex";
-    menuPanelContainerProjects.style.flexDirection = "row";
-    menuPanelContainerProjects.style.fontSize = "30px";
-    menuPanelContainerProjects.style.marginBottom = "1px";
-    menuPanelContainerProjects.style.color = "#c34a36";
+    menuPanelContainerProjects.style.alignItems = "center";
+    menuPanelContainerProjects.style.justifyContent = "flex-start";
+    menuPanelContainerProjects.style.fontSize = "1.5rem";
+    menuPanelContainerProjects.style.color = "#3f51b5";
+    menuPanelContainerProjects.style.marginBottom = "20px";
   },
 
   inboxStyling(inbox) {
-    inbox.style.flexGrow = 1;
+    inbox.style.width = "100%";
     inbox.style.display = "flex";
-    inbox.style.justifyContent = "center";
+    inbox.style.flexDirection = "column";
     inbox.style.alignItems = "center";
-    inbox.style.backgroundColor = "#b0a8b9";
-    inbox.style.width = "70%";
-    inbox.style.height = "auto";
-    inbox.style.color = "#ff8066";
+    inbox.style.padding = "20px";
+    inbox.style.backgroundColor = "#FFFFFF";
+    inbox.style.boxSizing = "border-box"; 
+    inbox.style.overflowY = "auto";
   },
 
   inboxContainerStyling(inboxContainer) {
     inboxContainer.style.display = "flex";
     inboxContainer.style.flexDirection = "column";
-    inboxContainer.style.width = "80%";
-    inboxContainer.style.height = "80%";
-    const firstChild = inboxContainer.firstElementChild;
-    if (firstChild) {
-      firstChild.style.backgroundColor = "#b0a8b9";
-      firstChild.style.padding = "10px";
-      firstChild.style.fontSize = "40px";
-    }
+    inboxContainer.style.width = "100%";
+    inboxContainer.style.gap = "10px";
   },
 
   inboxItemStyling(inboxItem) {
-    inboxItem.style.backgroundColor = "rgba(132, 94, 194, 0.5)";
-    inboxItem.style.padding = "10px";
-    return inboxItem;
+    inboxItem.style.backgroundColor = "#3f51b5";
+    inboxItem.style.color = "#FFFFFF";
+    inboxItem.style.padding = "10px 20px";
+    inboxItem.style.borderRadius = "4px";
+    inboxItem.style.cursor = "pointer";
+    inboxItem.style.transition = "background-color 0.2s";
+    inboxItem.addEventListener(
+      "mouseenter",
+      () => (inboxItem.style.backgroundColor = "#303f9f")
+    );
+    inboxItem.addEventListener(
+      "mouseleave",
+      () => (inboxItem.style.backgroundColor = "#3f51b5")
+    );
   },
 
   taskCreatorDivStyling() {
     const taskCreatorDiv = document.getElementById("taskCreatorDiv");
     if (taskCreatorDiv) {
+      taskCreatorDiv.style.position = "fixed";
+      taskCreatorDiv.style.top = "50%";
+      taskCreatorDiv.style.left = "50%";
+      taskCreatorDiv.style.transform = "translate(-50%, -50%)";
+      taskCreatorDiv.style.width = "90%";
+      taskCreatorDiv.style.maxWidth = "600px";
+      taskCreatorDiv.style.padding = "20px";
+      taskCreatorDiv.style.borderRadius = "8px";
+      taskCreatorDiv.style.backgroundColor = "#FFFFFF";
+      taskCreatorDiv.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
       taskCreatorDiv.style.display = "none";
-      taskCreatorDiv.style.flexDirection = "column";
-      taskCreatorDiv.style.justifyContent = "center";
-      taskCreatorDiv.style.alignItems = "center";
-      taskCreatorDiv.style.backgroundColor = "#845ec2";
-      taskCreatorDiv.style.width = "80%";
-      taskCreatorDiv.style.height = "80%";
-      taskCreatorDiv.style.position = "relative";
     }
   },
 
   taskEditorDivStyling() {
     const taskEditorDiv = document.getElementById("taskEditorDiv");
-
     if (taskEditorDiv) {
-
-      taskEditorDiv.style.display = "none"; 
-      taskEditorDiv.style.backgroundColor = "#845ec2";
-      taskEditorDiv.style.padding = "20px";
-      taskEditorDiv.style.borderRadius = "5px"; 
-      taskEditorDiv.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
-      taskEditorDiv.style.position = "absolute";
+      taskEditorDiv.style.position = "fixed";
       taskEditorDiv.style.top = "50%";
       taskEditorDiv.style.left = "50%";
       taskEditorDiv.style.transform = "translate(-50%, -50%)";
-  
+      taskEditorDiv.style.width = "90%";
+      taskEditorDiv.style.maxWidth = "600px";
+      taskEditorDiv.style.padding = "20px";
+      taskEditorDiv.style.borderRadius = "8px";
+      taskEditorDiv.style.backgroundColor = "#FFFFFF";
+      taskEditorDiv.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+      taskEditorDiv.style.display = "none";
     }
-
-  
   },
 
   todayStyling(today) {
-    today.style.flexGrow = 1;
     today.style.display = "none";
-    today.style.justifyContent = "center";
-    today.style.alignItems = "center";
-    today.style.backgroundColor = "#b0a8b9";
-    today.style.width = "70%";
-    today.style.height = "auto";
-    today.style.color = "#ff8066";
+    today.style.flexDirection = "column";
+    today.style.gap = "10px";
+    today.style.padding = "20px";
+    today.style.backgroundColor = "#e3f2fd";
+    today.style.borderRadius = "8px";
+    today.style.marginTop = "20px";
+    today.style.width = "100%";
+    today.style.maxWidth = "800px";
+    today.style.margin = "auto";
   },
 
   todayContainerStyling(todayContainer) {
@@ -184,14 +214,16 @@ const stylingFunctions = {
   },
 
   weekStyling(week) {
-    week.style.flexGrow = 1;
     week.style.display = "none";
-    week.style.justifyContent = "center";
-    week.style.alignItems = "center";
-    week.style.backgroundColor = "#b0a8b9";
-    week.style.width = "70%";
-    week.style.height = "auto";
-    week.style.color = "#ff8066";
+    week.style.flexDirection = "column";
+    week.style.gap = "10px";
+    week.style.padding = "20px";
+    week.style.backgroundColor = "#e8eaf6";
+    week.style.borderRadius = "8px";
+    week.style.marginTop = "20px";
+    week.style.width = "100%";
+    week.style.maxWidth = "800px";
+    week.style.margin = "auto";
   },
 
   weekContainerStyling(weekContainer) {
@@ -234,12 +266,13 @@ const stylingFunctions = {
   projectContainerStyling(projectContainer) {
     projectContainer.style.display = "flex";
     projectContainer.style.flexDirection = "column";
+    projectContainer.style.gap = "10px";
+    projectContainer.style.padding = "20px";
+    projectContainer.style.backgroundColor = "#f1f8e9";
+    projectContainer.style.borderRadius = "8px";
     projectContainer.style.width = "100%";
     projectContainer.style.marginTop = "20px";
-    projectContainer.style.backgroundColor = "#4b4453";
-    projectContainer.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
-    projectContainer.style.padding = "10px";
-    projectContainer.style.overflow = "auto";
+    projectContainer.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
   },
 
   ProjectsMainContainerDivStyling(projectsMainContainer) {
@@ -258,57 +291,66 @@ const stylingFunctions = {
   projectNameStyling(projectDiv) {
     projectDiv.style.padding = "10px 20px";
     projectDiv.style.margin = "5px 0";
-    projectDiv.style.backgroundColor = "#6b6a66";
-    projectDiv.style.color = "#ffffff";
+    projectDiv.style.backgroundColor = "#64b5f6";
+    projectDiv.style.color = "#FFFFFF";
     projectDiv.style.borderRadius = "4px";
     projectDiv.style.cursor = "pointer";
-    projectDiv.style.transition = "background-color 0.2s";
-    projectDiv.style.fontSize = "1rem";
-    projectDiv.style.fontWeight = "500";
-    projectDiv.addEventListener('mouseenter', () => projectDiv.style.backgroundColor = "#5a5560");
-    projectDiv.addEventListener('mouseleave', () => projectDiv.style.backgroundColor = "#6b6a66");
+    projectDiv.style.transition = "background-color 0.3s";
+    projectDiv.addEventListener(
+      "mouseenter",
+      () => (projectDiv.style.backgroundColor = "#42a5f5")
+    );
+    projectDiv.addEventListener(
+      "mouseleave",
+      () => (projectDiv.style.backgroundColor = "#64b5f6")
+    );
   },
 
   footerStyling(footer) {
     footer.style.display = "flex";
-    footer.style.flexDirection = "row";
-    footer.style.backgroundColor = "#4b4453";
+    footer.style.justifyContent = "center";
+    footer.style.alignItems = "center";
+    footer.style.backgroundColor = "#424242";
+    footer.style.color = "#FFFFFF";
+    footer.style.padding = "10px";
+    footer.style.marginTop = "auto";
     footer.style.width = "100%";
-    footer.style.height = "30px";
-  },
-
-  ClickStyling(div) {
-    div.addEventListener("mouseenter", function () {
-      this.style.cursor = "pointer";
-      this.style.backgroundColor = "darkgrey";
-      this.style.boxShadow = "0 0 10px #000";
-    });
-    div.addEventListener("mouseleave", function () {
-      this.style.backgroundColor = "grey";
-      this.style.boxShadow = "none";
-    });
   },
 
   checkboxStyling(checkBox) {
-    checkBox.style.accentColor = "#845ec2";
+    checkBox.style.accentColor = "#64b5f6";
     checkBox.style.cursor = "pointer";
-    checkBox.style.transform = "scale(1.5)";
+    checkBox.style.transform = "scale(1.2)";
     checkBox.style.marginRight = "10px";
+  },
+
+  ClickStyling(div) {
+    div.style.cursor = "pointer";
+    div.addEventListener("mouseenter", () => {
+      div.style.transform = "scale(1.05)";
+      div.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
+    });
+    div.addEventListener("mouseleave", () => {
+      div.style.transform = "scale(1.0)";
+      div.style.boxShadow = "none";
+    });
   },
 
   loadFontAwesome() {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css";
+    link.href =
+      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css";
     document.head.appendChild(link);
   },
 
   loadGoogleFonts() {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap";
+    link.href =
+      "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap";
     document.head.appendChild(link);
-  }
+  },
 };
 
 export { stylingFunctions };
