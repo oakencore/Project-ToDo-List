@@ -1,6 +1,5 @@
 import { TaskDiv } from "./TaskDiv";
 import {
-  parseJSON,
   parseISO,
   isToday,
   isWithinInterval,
@@ -33,11 +32,6 @@ const storageFunctions = {
 
   // Remove task from localStorage by taskID
   completeTaskAndRemove(taskId) {
-    // Log the task ID before removal
-    console.log(
-      `completeTaskAndRemove: Attempting to remove task with ID: ${taskId} from storage.`
-    );
-    // Check if the task exists in localStorage before removal
     const taskExists = localStorage.getItem(taskId);
     if (taskExists) {
       // Remove the task from localStorage
@@ -58,7 +52,7 @@ const storageFunctions = {
     this.clearLocalStorage();
 
     for (let i = 0; i < numberOfObjects; i++) {
-      const dueDate = formatISO(new Date(2024, 1, 27), {
+      const dueDate = formatISO(new Date(2024, 1, 28), {
         representation: "date",
       });
       const taskId = uuidv4();
@@ -135,20 +129,19 @@ const storageFunctions = {
     const tasks = this.parsedStorage();
     const today = startOfDay(new Date());
     // 7 days in total, starting from today but starts at 6
-    const endOfWeek = addDays(today, 6); 
-  
+    const endOfWeek = addDays(today, 6);
+
     const tasksDueThisWeek = Object.values(tasks).filter((task) => {
       const dueDate = parseISO(task.dueDate);
-  
+
       return isWithinInterval(dueDate, {
         start: today,
         end: endOfWeek,
       });
     });
-  
+
     return tasksDueThisWeek;
   },
-  
 
   displayWeekTasks() {
     const tasksDueWeek = this.getWeekTasks();

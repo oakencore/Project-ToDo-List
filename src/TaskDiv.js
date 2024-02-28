@@ -12,7 +12,7 @@ export class TaskDiv {
     project,
     parentElementId,
   }) {
-    // Task ID must be provided or provide a new UNIQUE!one
+    // TaskID must be provided or we provide a new UNIQUE!one
     this.id = taskId || uuidv4();
     this.parentElementId = parentElementId;
 
@@ -36,7 +36,6 @@ export class TaskDiv {
     this.element.id = this.id;
     this.element.classList.add("task-item");
     this.element.dataset.taskId = this.id;
-
 
     // Create and append a checkbox to the task.
     const checkBox = formFunctions.createCheckbox();

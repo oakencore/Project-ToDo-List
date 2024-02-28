@@ -11,32 +11,37 @@ export function divOrganiser() {
   stylingFunctions.mainDivContainerStyling(mainDiv);
 
   setupHeader(mainDiv);
+
   const contentContainer = setupContentContainer(mainDiv);
   const menuPanel = setupMenuPanel(contentContainer);
-  // Inbox
+
+  // Inbox section
   const { inbox } = setupInbox(contentContainer);
-    // Task Editor
-    setupTaskEditorDiv(inbox);
-  // Task Creator
+
+  // Task editor
+  setupTaskEditorDiv(inbox);
+
+  // Task creator
   setupTaskCreatorDiv(inbox);
 
-  // Today
+  // Today's tasks section
   setupTodaySection(inbox);
-  // Week
+
+  // This week's tasks section
   setupWeekSection(inbox);
-  // Projects
+
+  // Projects section
   setupProjectsSection(menuPanel);
   setupProjectsMainContainerDivCreation(inbox);
-  // Load Tasks from Local Storage
-  storageFunctions.populateDummyLocalStorage(2);
+
+  // Loading and displaying tasks and dummy storage so I can test for many tasks at once.
+  // storageFunctions.populateDummyLocalStorage(100);
   storageFunctions.loadTasksFromLocalStorage();
-  // Display todays tasks
   storageFunctions.displayTodaysTasks();
-  // Display week tasks
   storageFunctions.displayWeekTasks();
-  // Display project names
   storageFunctions.displayProjectNames();
-  setupFooter(mainDiv);
+  // Used document.body instead of the main container to ensure the footer is always at the bottom of the display.
+  setupFooter(document.body);
 }
 
 // ---------------------------
@@ -49,7 +54,6 @@ function mainDivCreation() {
     return;
   }
   mainDiv.id = "mainDiv";
-  // console.log("Main div created:", mainDiv);
   return mainDiv;
 }
 
@@ -133,17 +137,10 @@ function menuPanelDivCreationProjects(menuPanel) {
 // Inbox
 // ---------------------------
 function setupInbox(contentContainer) {
-  // Create and style the inbox
   const inbox = contentContainer.appendChild(createDivWithText("", "inbox"));
   stylingFunctions.inboxStyling(inbox);
-
-  // Create inbox container
   const inboxContainer = createDivWithText("", "inboxContainerDiv");
-
-  // Append the inbox container to the inbox
   inbox.appendChild(inboxContainer);
-
-  // Create and append the inbox container title
   const inboxContainerDivTitle = createDivWithText(
     "Inbox",
     "inboxContainerTitle",
@@ -179,17 +176,12 @@ function taskCreatorDivPopulate(taskCreatorDiv) {
   const form = formFunctions.createForm();
   formFunctions.addInputFieldsToForm(form);
   formFunctions.appendSubmitButtonToForm(form);
-
-  //Add event listener to submit button
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     formFunctions.handleFormSubmission(event);
   });
-
-  // Add close icon div and append to the taskcreatordiv
   const closeIconDiv = formFunctions.createCloseIconDiv();
   taskCreatorDiv.appendChild(closeIconDiv);
-
   taskCreatorDiv.appendChild(form);
 }
 
@@ -242,7 +234,6 @@ function setupWeekSection(inbox) {
 // ---------------------------
 // Projects Setup
 // ---------------------------
-
 function projectsDivsCreation(menuPanelDivContainerProjects) {
   const projectsContainer = createDivWithText("", "projectsContainer");
 
@@ -306,6 +297,7 @@ function setupFooter(mainDiv) {
 // ---------------------------
 // Utility Functions
 // ---------------------------
+// TODO should probably remove unused functionality. Thought I'd need it. 
 export function createDivWithText(
   text,
   divID,

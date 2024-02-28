@@ -24,6 +24,7 @@ const formFunctions = {
     });
 
     // Hidden input for task ID
+    // TODO remove this. It works but it's janky
     const taskIdInput = document.createElement("input");
     taskIdInput.type = "hidden";
     taskIdInput.id = "taskId";

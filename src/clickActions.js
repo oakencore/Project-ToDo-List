@@ -70,11 +70,13 @@ class ClickActions {
 
     const checkInterval = setInterval(attemptToAttachListener, 100);
 
+    // TODO there must be a way to load listeners for icons that are added dynamically
     setTimeout(() => {
       clearInterval(checkInterval);
       console.warn(
         "Stopped checking for addTaskPrompt - element not found within timeout."
       );
+      // wait for 5000ms before trying again
     }, 5000);
   }
 
@@ -86,16 +88,19 @@ class ClickActions {
   handleAddTaskPromptClick() {
     this.setSectionVisibility("taskCreatorDiv", true);
     this.setSectionVisibility("inboxContainerDiv", false);
+    this.setSectionVisibility("projectsMainContainer", false);
   }
 
   showInbox() {
     this.toggleSections("inboxContainerDiv");
+    this.setSectionVisibility("projectsMainContainer", false);
   }
 
   showToday() {
     this.setSectionVisibility("inboxContainerDiv", false);
     this.setSectionVisibility("today", true);
     this.setSectionVisibility("week", false);
+    this.setSectionVisibility("projectsMainContainer", false);
     storageFunctions.displayTodaysTasks();
   }
 
@@ -103,19 +108,20 @@ class ClickActions {
     this.setSectionVisibility("inboxContainerDiv", false);
     this.setSectionVisibility("today", false);
     this.setSectionVisibility("week", true);
+    this.setSectionVisibility("projectsMainContainer", false);
     storageFunctions.displayWeekTasks();
   }
 
   clearProjectTasksExceptTitle(containerId) {
     const container = document.getElementById(containerId);
-    const titleElement = container.querySelector(".project-title"); // Assuming title has a "project-title" class
+    const titleElement = container.querySelector(".project-title");
 
-    // Clear all child elements except the title
+    // Clear child elements except the title
     if (titleElement) {
       container.innerHTML = "";
       container.appendChild(titleElement);
     } else {
-      container.innerHTML = ""; // If no title, clear everything
+      container.innerHTML = "";
     }
   }
 
@@ -135,7 +141,7 @@ class ClickActions {
       (task) => task.project === projectName
     );
 
-    // Display each task associated with the project
+    // Display each task for project
     projectTasks.forEach((taskData) => {
       const taskElement = new TaskDiv({
         ...taskData,
@@ -229,13 +235,13 @@ class ClickActions {
   createFormFields(fields) {
     console.log("createFormFields input:", fields);
 
-    // Ensure fields is an object before proceeding.
+    // Ensure fields is an object
     if (typeof fields !== "object" || fields === null) {
       console.error(
         "Invalid input for createFormFields, expected an object:",
         fields
       );
-      return []; // Return empty to avoid further errors.
+      return [];
     }
 
     // Convert fields object into an array of key-value pairs.
@@ -250,7 +256,9 @@ class ClickActions {
           !fieldDetails.id
         ) {
           console.error("Invalid fieldDetails for label:", label, fieldDetails);
-          return null; // Return null for this field to filter it out later.
+          // Return null for this field to filter it out later.
+          // TODO this works but it's not great.
+          return null;
         }
 
         fieldDetails.id = fieldDetails.id || `${label.toLowerCase()}Input`;
@@ -263,7 +271,7 @@ class ClickActions {
 
         return div;
       })
-      .filter((field) => field !== null); // Filter out any nulls added due to errors.
+      .filter((field) => field !== null);
   }
 
   createLabel(text, htmlFor) {
@@ -295,7 +303,8 @@ class ClickActions {
     }
 
     console.log("TaskEditorDiv found:", taskEditorDiv);
-    taskEditorDiv.innerHTML = ""; // Clear existing form
+    // Clear existing form
+    taskEditorDiv.innerHTML = "";
 
     const taskDetails = storageFunctions.getTaskDetails(taskId);
     console.log("Retrieved taskDetails for taskId:", taskId, taskDetails);
@@ -303,25 +312,20 @@ class ClickActions {
     if (!taskDetails) {
       return console.error("Task details not found for ID:", taskId);
     }
-
     // Use formFunctions to initialise the form with taskDetails
     const form = formFunctions.createForm();
-    formFunctions.addInputFieldsToForm(form, taskDetails); // Modified to accept taskDetails
+    formFunctions.addInputFieldsToForm(form, taskDetails);
     formFunctions.appendSubmitButtonToForm(form);
-
-    // Prepopulate form fields with existing task details
+    // Prepopulate form fields with existing task information
     for (const key in taskDetails) {
       if (form.elements[key]) {
         form.elements[key].value = taskDetails[key];
       }
     }
-
     taskEditorDiv.appendChild(form);
-
-    // Handle form submission for editing task
     form.addEventListener("submit", (e) =>
       formFunctions.handleFormSubmission(e, taskEditorDiv, true)
-    ); // Modified to accept taskEditorDiv and a flag indicating editing
+    );
 
     console.log("Completed setupAndPopulateTaskEditorForm for taskId:", taskId);
   }

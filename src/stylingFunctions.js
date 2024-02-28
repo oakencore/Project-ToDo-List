@@ -1,341 +1,390 @@
-import { TaskDiv } from "./TaskDiv";
+// ---------------------------
+// Utility Functions for common styling
+// ---------------------------
+const applyStyles = (element, styles) => {
+  Object.entries(styles).forEach(([key, value]) => {
+    element.style[key] = value;
+  });
+};
 
-// Styling
-// Added all styling functions to an object so I can import it with one line.
+// Utility for hover transformations
+const addHoverEffect = (
+  element,
+  {
+    scaleIn = "scale(1.02)",
+    scaleOut = "scale(1.00)",
+    hoverInColor,
+    hoverOutColor,
+  } = {}
+) => {
+  element.addEventListener("mouseenter", () => {
+    element.style.transform = scaleIn;
+    if (hoverInColor) element.style.backgroundColor = hoverInColor;
+  });
+  element.addEventListener("mouseleave", () => {
+    element.style.transform = scaleOut;
+    if (hoverOutColor) element.style.backgroundColor = hoverOutColor;
+  });
+};
+
+// ---------------------------
+// StylingFunctions object to style all parts of the todo app
+// ---------------------------
 const stylingFunctions = {
   globalStyling() {
-    document.body.style.margin = "0";
-    document.body.style.padding = "0";
-    document.body.style.minHeight = "100vh";
-    document.body.style.display = "flex";
-    document.body.style.flexDirection = "column";
-    document.body.style.fontFamily = "'Roboto', sans-serif";
-    document.body.style.backgroundColor = "#f5f5f5";
-    document.documentElement.style.height = "100%";
+    applyStyles(document.documentElement, { height: "100%" });
+    applyStyles(document.body, {
+      margin: "0",
+      padding: "0",
+      minHeight: "100vh",
+      margin: "0 auto",
+      display: "flex",
+      flexDirection: "column",
+      fontFamily: "'Roboto', sans-serif",
+      backgroundColor: "#f5f5f5",
+    });
   },
 
   newTaskStyling(newTask) {
-    newTask.style.display = "flex";
-    newTask.style.flexDirection = "row";
-    newTask.style.alignItems = "center";
-    newTask.style.marginTop = "10px";
-    newTask.style.padding = "15px";
-    newTask.style.gap = "10px";
-    newTask.style.backgroundColor = "#FFFFFF";
-    newTask.style.border = "1px solid #E0E0E0";
-    newTask.style.borderRadius = "8px";
-    newTask.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
-    newTask.style.transition = "transform 0.2s ease";
-    // Hover
-    newTask.addEventListener(
-      "mouseenter",
-      () => (newTask.style.transform = "scale(1.02)")
-    );
-    newTask.addEventListener(
-      "mouseleave",
-      () => (newTask.style.transform = "scale(1.00)")
-    );
+    applyStyles(newTask, {
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+      marginTop: "10px",
+      padding: "15px",
+      gap: "10px",
+      backgroundColor: "#FFFFFF",
+      border: "1px solid #E0E0E0",
+      borderRadius: "8px",
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+      transition: "transform 0.2s ease",
+    });
+    addHoverEffect(newTask);
   },
 
   mainDivContainerStyling(mainDiv) {
-    mainDiv.style.margin = "0 auto"; 
-    mainDiv.style.maxWidth = "1200px"; 
-    mainDiv.style.width = "100%"; 
-    mainDiv.style.overflow = "hidden"; 
+    applyStyles(mainDiv, {
+      flexGrow: "1",
+      margin: "0 auto",
+      maxWidth: "auto",
+      width: "100%",
+      overflow: "hidden",
+    });
   },
 
   headerStyling(header) {
-    header.style.display = "flex";
-    header.style.flexDirection = "row";
-    header.style.backgroundColor = "#3f51b5";
-    header.style.width = "100%";
-    header.style.height = "70px";
-    header.style.padding = "0 20px";
-    header.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
+    applyStyles(header, {
+      display: "flex",
+      flexDirection: "row",
+      backgroundColor: "#3f51b5",
+      width: "100%",
+      height: "70px",
+      padding: "0 20px",
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+      marginBottom: "1%",
+    });
   },
 
   headerTextStyling() {
     const headerText = document.getElementById("headerText");
-    headerText.style.display = "flex";
-    headerText.style.flexDirection = "row";
-    headerText.style.justifyContent = "center";
-    headerText.style.alignItems = "center";
-    headerText.style.width = "100%";
-    headerText.style.fontSize = "2rem";
-    headerText.style.color = "#FFFFFF";
+    applyStyles(headerText, {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      width: "100%",
+      fontSize: "2rem",
+      color: "#FFFFFF",
+    });
   },
 
   contentContainerStyling(contentContainer) {
-    contentContainer.style.width = "100%";
-    contentContainer.style.display = "flex";
-    contentContainer.style.flexDirection = "row";
-    contentContainer.style.justifyContent = "space-between";
-    contentContainer.style.padding = "20px"; 
-    contentContainer.style.boxSizing = "border-box";
+    applyStyles(contentContainer, {
+      display: "flex",
+      flexGrow: "1",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      padding: "0 20px",
+      boxSizing: "border-box",
+      width: "100%",
+    });
   },
 
   menuPanelStyling(menuPanel) {
-    menuPanel.style.flexGrow = 1;
-    menuPanel.style.display = "flex";
-    menuPanel.style.flexDirection = "column";
-    menuPanel.style.justifyContent = "flex-start";
-    menuPanel.style.backgroundColor = "#FFFFFF";
-    menuPanel.style.width = "250px";
-    menuPanel.style.marginRight = "20px";
-    menuPanel.style.padding = "20px";
-    menuPanel.style.borderRadius = "8px";
-    menuPanel.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
+    applyStyles(menuPanel, {
+      flexGrow: 1,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      backgroundColor: "#FFFFFF",
+      width: "250px",
+      marginRight: "20px",
+      padding: "20px",
+      borderRadius: "8px",
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    });
   },
 
   menuPanelDivContainerStyling() {
     const menuPanelContainer = document.getElementById("menuPanelDivContainer");
-    menuPanelContainer.style.display = "flex";
-    menuPanelContainer.style.flexDirection = "column";
-    menuPanelContainer.style.gap = "15px";
+    applyStyles(menuPanelContainer, {
+      display: "flex",
+      flexDirection: "column",
+      gap: "15px",
+    });
   },
 
   menuPanelDivCreationProjectsTitleStyling() {
     const menuPanelContainerProjects = document.getElementById(
       "projectsTitleTextDiv"
     );
-    menuPanelContainerProjects.style.display = "flex";
-    menuPanelContainerProjects.style.alignItems = "center";
-    menuPanelContainerProjects.style.justifyContent = "flex-start";
-    menuPanelContainerProjects.style.fontSize = "1.5rem";
-    menuPanelContainerProjects.style.color = "#3f51b5";
-    menuPanelContainerProjects.style.marginBottom = "20px";
+    applyStyles(menuPanelContainerProjects, {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "flex-start",
+      fontSize: "1.5rem",
+      color: "#3f51b5",
+      marginBottom: "10px",
+      paddingTop: "20px",
+    });
   },
 
   inboxStyling(inbox) {
-    inbox.style.width = "100%";
-    inbox.style.display = "flex";
-    inbox.style.flexDirection = "column";
-    inbox.style.alignItems = "center";
-    inbox.style.padding = "20px";
-    inbox.style.backgroundColor = "#FFFFFF";
-    inbox.style.boxSizing = "border-box"; 
-    inbox.style.overflowY = "auto";
+    applyStyles(inbox, {
+      width: "100%",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      padding: "20px",
+      backgroundColor: "#FFFFFF",
+      boxSizing: "border-box",
+      overflowY: "auto",
+    });
   },
 
   inboxContainerStyling(inboxContainer) {
-    inboxContainer.style.display = "flex";
-    inboxContainer.style.flexDirection = "column";
-    inboxContainer.style.width = "100%";
-    inboxContainer.style.gap = "10px";
+    applyStyles(inboxContainer, {
+      display: "flex",
+      flexDirection: "column",
+      width: "100%",
+      maxHeight: "80vh",
+      overflowY: "auto",
+      gap: "10px",
+    });
   },
 
   inboxItemStyling(inboxItem) {
-    inboxItem.style.backgroundColor = "#3f51b5";
-    inboxItem.style.color = "#FFFFFF";
-    inboxItem.style.padding = "10px 20px";
-    inboxItem.style.borderRadius = "4px";
-    inboxItem.style.cursor = "pointer";
-    inboxItem.style.transition = "background-color 0.2s";
-    inboxItem.addEventListener(
-      "mouseenter",
-      () => (inboxItem.style.backgroundColor = "#303f9f")
-    );
-    inboxItem.addEventListener(
-      "mouseleave",
-      () => (inboxItem.style.backgroundColor = "#3f51b5")
-    );
+    applyStyles(inboxItem, {
+      backgroundColor: "#3f51b5",
+      color: "#FFFFFF",
+      padding: "10px 20px",
+      borderRadius: "4px",
+      cursor: "pointer",
+      transition: "background-color 0.2s, transform 0.2s ease",
+    });
+    addHoverEffect(inboxItem, {
+      hoverInColor: "#303f9f",
+      hoverOutColor: "#3f51b5",
+    });
   },
 
   taskCreatorDivStyling() {
     const taskCreatorDiv = document.getElementById("taskCreatorDiv");
     if (taskCreatorDiv) {
-      taskCreatorDiv.style.position = "fixed";
-      taskCreatorDiv.style.top = "50%";
-      taskCreatorDiv.style.left = "50%";
-      taskCreatorDiv.style.transform = "translate(-50%, -50%)";
-      taskCreatorDiv.style.width = "90%";
-      taskCreatorDiv.style.maxWidth = "600px";
-      taskCreatorDiv.style.padding = "20px";
-      taskCreatorDiv.style.borderRadius = "8px";
-      taskCreatorDiv.style.backgroundColor = "#FFFFFF";
-      taskCreatorDiv.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
-      taskCreatorDiv.style.display = "none";
+      applyStyles(taskCreatorDiv, {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "90%",
+        maxWidth: "300px",
+        padding: "20px",
+        borderRadius: "8px",
+        backgroundColor: "#FFFFFF",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        display: "none",
+      });
     }
   },
 
   taskEditorDivStyling() {
     const taskEditorDiv = document.getElementById("taskEditorDiv");
     if (taskEditorDiv) {
-      taskEditorDiv.style.position = "fixed";
-      taskEditorDiv.style.top = "50%";
-      taskEditorDiv.style.left = "50%";
-      taskEditorDiv.style.transform = "translate(-50%, -50%)";
-      taskEditorDiv.style.width = "90%";
-      taskEditorDiv.style.maxWidth = "600px";
-      taskEditorDiv.style.padding = "20px";
-      taskEditorDiv.style.borderRadius = "8px";
-      taskEditorDiv.style.backgroundColor = "#FFFFFF";
-      taskEditorDiv.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
-      taskEditorDiv.style.display = "none";
+      applyStyles(taskEditorDiv, {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "90%",
+        maxWidth: "300px",
+        padding: "20px",
+        borderRadius: "8px",
+        backgroundColor: "#FFFFFF",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        display: "none",
+      });
     }
   },
 
   todayStyling(today) {
-    today.style.display = "none";
-    today.style.flexDirection = "column";
-    today.style.gap = "10px";
-    today.style.padding = "20px";
-    today.style.backgroundColor = "#e3f2fd";
-    today.style.borderRadius = "8px";
-    today.style.marginTop = "20px";
-    today.style.width = "100%";
-    today.style.maxWidth = "800px";
-    today.style.margin = "auto";
+    applyStyles(today, {
+      display: "none",
+      flexDirection: "column",
+      gap: "10px",
+      padding: "20px",
+      backgroundColor: "#e3f2fd",
+      borderRadius: "8px",
+      marginTop: "20px",
+      width: "100%",
+      maxHeight: "80vh",
+      overflowY: "auto",
+      maxWidth: "800px",
+      margin: "auto",
+    });
   },
 
   todayContainerStyling(todayContainer) {
-    todayContainer.style.display = "flex";
-    todayContainer.style.flexDirection = "column";
-    todayContainer.style.width = "80%";
-    todayContainer.style.height = "80%";
+    applyStyles(todayContainer, {
+      display: "flex",
+      flexDirection: "column",
+      width: "auto",
+      height: "auto",
+    });
+    // for title or first child
     const firstChild = todayContainer.firstElementChild;
     if (firstChild) {
-      firstChild.style.backgroundColor = "#b0a8b9";
-      firstChild.style.padding = "10px";
-      firstChild.style.fontSize = "40px";
+      applyStyles(firstChild, {
+        padding: "10px",
+        fontSize: "40px",
+      });
     }
   },
 
   todayItemStyling(todayItem) {
-    const colour1 = "#6b6a66";
-    const colour2 = "#8a8986";
+    // TODO there is other styling overlapping this that keeps breaking it.
+    const [colour1, colour2] = ["#6b6a66", "#8a8986"];
     const lastItem = todayItem.previousElementSibling;
     const lastColour = lastItem ? lastItem.getAttribute("data-lastColour") : "";
     const nextColour = lastColour === colour1 ? colour2 : colour1;
-    todayItem.style.backgroundColor = nextColour;
-    todayItem.style.padding = "10px";
+    applyStyles(todayItem, {
+      backgroundColor: nextColour,
+      padding: "10px",
+    });
     todayItem.setAttribute("data-lastColour", nextColour);
     return todayItem;
   },
 
   weekStyling(week) {
-    week.style.display = "none";
-    week.style.flexDirection = "column";
-    week.style.gap = "10px";
-    week.style.padding = "20px";
-    week.style.backgroundColor = "#e8eaf6";
-    week.style.borderRadius = "8px";
-    week.style.marginTop = "20px";
-    week.style.width = "100%";
-    week.style.maxWidth = "800px";
-    week.style.margin = "auto";
+    // Reusing styling. It's recycling!
+    this.todayStyling(week);
   },
 
   weekContainerStyling(weekContainer) {
-    weekContainer.style.display = "flex";
-    weekContainer.style.flexDirection = "column";
-    weekContainer.style.width = "80%";
-    weekContainer.style.height = "80%";
-    const firstChild = weekContainer.firstElementChild;
-    if (firstChild) {
-      firstChild.style.backgroundColor = "#b0a8b9";
-      firstChild.style.padding = "10px";
-      firstChild.style.fontSize = "40px";
-    }
+    this.todayContainerStyling(weekContainer);
   },
 
   weekItemStyling(weekItem) {
-    const colour1 = "#6b6a66";
-    const colour2 = "#8a8986";
-    const lastItem = weekItem.previousElementSibling;
-    const lastColour = lastItem ? lastItem.getAttribute("data-lastColour") : "";
-    const nextColour = lastColour === colour1 ? colour2 : colour1;
-    weekItem.style.backgroundColor = nextColour;
-    weekItem.style.padding = "10px";
-    weekItem.setAttribute("data-lastColour", nextColour);
-    return weekItem;
+    return this.todayItemStyling(weekItem);
   },
 
   projectStyling(project) {
-    project.style.flexGrow = 1;
-    project.style.display = "flex";
-    project.style.justifyContent = "center";
-    project.style.alignItems = "center";
-    project.style.backgroundColor = "#b0a8b9";
-    project.style.width = "100%";
-    project.style.height = "auto";
-    project.style.color = "#ff8066";
-    project.style.padding = "10px 0";
+    applyStyles(project, {
+      flexGrow: 1,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "#b0a8b9",
+      width: "100%",
+      height: "auto",
+      color: "#ff8066",
+      padding: "50px 0",
+    });
   },
 
   projectContainerStyling(projectContainer) {
-    projectContainer.style.display = "flex";
-    projectContainer.style.flexDirection = "column";
-    projectContainer.style.gap = "10px";
-    projectContainer.style.padding = "20px";
-    projectContainer.style.backgroundColor = "#f1f8e9";
-    projectContainer.style.borderRadius = "8px";
-    projectContainer.style.width = "100%";
-    projectContainer.style.marginTop = "20px";
-    projectContainer.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+    applyStyles(projectContainer, {
+      display: "flex",
+      flexDirection: "column",
+      gap: "10px",
+      padding: "10px",
+      backgroundColor: "#f1f8e9",
+      borderRadius: "5px",
+      width: "85%",
+      flexGrow: "1",
+      marginTop: "20px",
+      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    });
   },
 
   ProjectsMainContainerDivStyling(projectsMainContainer) {
-    projectsMainContainer.style.display = "none";
-    projectsMainContainer.style.flexDirection = "column";
-    projectsMainContainer.style.width = "80%";
-    projectsMainContainer.style.height = "80%";
+    applyStyles(projectsMainContainer, {
+      display: "none",
+      flexDirection: "column",
+      width: "80%",
+      height: "80%",
+    });
     const firstChild = projectsMainContainer.firstElementChild;
     if (firstChild) {
-      firstChild.style.backgroundColor = "#b0a8b9";
-      firstChild.style.padding = "10px";
-      firstChild.style.fontSize = "40px";
+      applyStyles(firstChild, {
+        backgroundColor: "#b0a8b9",
+        padding: "10px",
+        fontSize: "40px",
+      });
     }
   },
 
   projectNameStyling(projectDiv) {
-    projectDiv.style.padding = "10px 20px";
-    projectDiv.style.margin = "5px 0";
-    projectDiv.style.backgroundColor = "#64b5f6";
-    projectDiv.style.color = "#FFFFFF";
-    projectDiv.style.borderRadius = "4px";
-    projectDiv.style.cursor = "pointer";
-    projectDiv.style.transition = "background-color 0.3s";
-    projectDiv.addEventListener(
-      "mouseenter",
-      () => (projectDiv.style.backgroundColor = "#42a5f5")
-    );
-    projectDiv.addEventListener(
-      "mouseleave",
-      () => (projectDiv.style.backgroundColor = "#64b5f6")
-    );
+    applyStyles(projectDiv, {
+      padding: "10px 20px",
+      margin: "5px 0",
+      backgroundColor: "#64b5f6",
+      color: "#FFFFFF",
+      borderRadius: "4px",
+      cursor: "pointer",
+      transition: "background-color 0.3s, transform 0.2s ease",
+    });
+    addHoverEffect(projectDiv, {
+      hoverInColor: "#42a5f5",
+      hoverOutColor: "#64b5f6",
+    });
   },
 
   footerStyling(footer) {
-    footer.style.display = "flex";
-    footer.style.justifyContent = "center";
-    footer.style.alignItems = "center";
-    footer.style.backgroundColor = "#424242";
-    footer.style.color = "#FFFFFF";
-    footer.style.padding = "10px";
-    footer.style.marginTop = "auto";
-    footer.style.width = "100%";
+    applyStyles(footer, {
+      marginTop: "auto",
+      width: "100%",
+      backgroundColor: "#424242",
+      color: "#FFFFFF",
+      textAlign: "center",
+      padding: "10px",
+      boxShadow: "0 -2px 4px rgba(0,0,0,0.1)",
+    });
   },
 
   checkboxStyling(checkBox) {
-    checkBox.style.accentColor = "#64b5f6";
-    checkBox.style.cursor = "pointer";
-    checkBox.style.transform = "scale(1.2)";
-    checkBox.style.marginRight = "10px";
+    applyStyles(checkBox, {
+      accentColor: "#64b5f6",
+      cursor: "pointer",
+      transform: "scale(1.2)",
+      marginRight: "10px",
+    });
   },
 
   ClickStyling(div) {
-    div.style.cursor = "pointer";
-    div.addEventListener("mouseenter", () => {
-      div.style.transform = "scale(1.05)";
-      div.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
-    });
-    div.addEventListener("mouseleave", () => {
-      div.style.transform = "scale(1.0)";
-      div.style.boxShadow = "none";
-    });
+    applyStyles(div, { cursor: "pointer" });
+    addHoverEffect(
+      div,
+      "scale(1.05)",
+      "scale(1.0)",
+      "0 2px 4px rgba(0,0,0,0.2)",
+      "none"
+    );
   },
 
+  // ---------------------------
+// Utility Functions for loading fonts and icons
+// ---------------------------
   loadFontAwesome() {
     const link = document.createElement("link");
     link.rel = "stylesheet";
